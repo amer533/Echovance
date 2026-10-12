@@ -6,20 +6,24 @@ Echovance turns historical customer-support conversations into operational decis
 weekly trends → deterministic alerts → AI-proposed actions → manager approval → task tracking**
 
 It is a decision-support tool, not a chatbot. It was built on the public *Customer Support on Twitter*
-dataset (SpotifyCares, Oct–Nov 2017); the privacy-reviewed development subset and the 13 genuine Gemini
-results are included (`data/spotifycares_public/`, CC BY-NC-SA 4.0). Final project for the Kernel CAIE
+dataset (SpotifyCares, Oct–Nov 2017); the privacy-reviewed development subset and the 13 genuine historical
+AI results are included (`data/spotifycares_public/`, CC BY-NC-SA 4.0). Final project for the Kernel CAIE
 Level 2 AI Engineering program.
+
+> Initial AI validation used Google Gemini. The 13 genuine historical analysis results are preserved for reproducibility. All new AI analysis uses OpenAI GPT.
 
 | | |
 |---|---|
 | Stack | Python 3.12, Django 5.1, Django REST Framework, PostgreSQL 16, server-rendered HTML/CSS + minimal JS |
-| AI | Google Gemini (`gemini-3.5-flash-lite`) via REST with structured output, behind a persisted request/cost budget and a privacy gate. A clearly labelled keyword **mock** runs the whole workflow offline for demos and tests. OpenAI integration is present but **disabled**. |
-| Tests | 264 pytest tests (PostgreSQL, no network), incl. 5 real-browser tests and 43 real-AI-path tests with mocked HTTP |
+| AI | **OpenAI GPT** (`gpt-4o-mini`) via the official SDK with strict JSON-schema output, behind a persisted request/cost budget and a privacy gate. A clearly labelled keyword **mock** runs the whole workflow offline for demos and tests. |
+| Tests | 260 pytest tests (PostgreSQL, no network), incl. 5 real-browser tests and 44 real-AI-path tests over mocked HTTP |
 
-**Two AI modes — never mixed.** *Demo mode* (the `.env.example` default) uses the deterministic keyword
-mock: no API key, no network, no cost. Its results are labelled `MOCK` everywhere and live in a separate
-**demo data scope**; they are not AI analysis. *Real mode* uses Gemini and only works with a valid API key
-**and** a request budget explicitly authorised by the owner (see [Real Gemini integration](#real-gemini-integration)).
+**Two AI modes — never mixed.** *Real mode* (the `.env.example` default) sends new analyses to OpenAI. It
+needs a valid `OPENAI_API_KEY` **and** a request budget explicitly authorised by the owner (see
+[OpenAI integration](#openai-integration)); without a key, imported data and stored results remain fully
+available and only new AI requests are refused. *Demo mode* uses the deterministic keyword mock: no API key,
+no network, no cost. Its results are labelled `MOCK` everywhere and live in a separate **demo data scope**;
+they are not AI analysis.
 
 ## Quick start (clean machine)
 
@@ -35,8 +39,8 @@ copy .env.example .env
 .venv\Scripts\python -c "import secrets; print(secrets.token_urlsafe(50))"   # paste into DJANGO_SECRET_KEY
 ```
 
-Edit `.env`: set `DJANGO_SECRET_KEY` and `DB_PASSWORD`. Keep `ECHOVANCE_AI_MODE=demo` and `LLM_PROVIDER=mock`
-to work offline (no API key).
+Edit `.env`: set `DJANGO_SECRET_KEY`, `DB_PASSWORD` and, for new AI analysis, `OPENAI_API_KEY`. Everything
+else is pre-configured for OpenAI `gpt-4o-mini` with its prices and the request/cost limits.
 
 ### Database (fresh PostgreSQL database)
 
@@ -67,11 +71,12 @@ authorise jobs (+ everything analysts can do) · **Analysts** import, analyse, d
 
 `data/spotifycares_public/` holds the real data used during development, prepared for redistribution:
 4,000 SpotifyCares customer conversations (Oct–Nov 2017) + 4,000 brand replies, with URLs, handles, names
-and number-like identifiers redacted, plus the **13 genuine Gemini analyses** made during development.
+and number-like identifiers redacted, plus the **13 genuine historical analyses** made with Google Gemini during development (kept as Gemini results).
 Source, licence (CC BY-NC-SA 4.0, non-commercial), changes and residual privacy risk:
 [`data/spotifycares_public/README.md`](data/spotifycares_public/README.md).
 
-**1. Import the data and the genuine Gemini results** (into the fresh database from the quick start):
+**1. Import the data and the genuine historical results** (into the fresh database from the quick start;
+no API key needed):
 
 ```powershell
 .venv\Scripts\python manage.py import_messages data\spotifycares_public\spotifycares_subset.csv --data-classification public
@@ -80,7 +85,7 @@ Source, licence (CC BY-NC-SA 4.0, non-commercial), changes and residual privacy 
 #   -> 13 genuine analyses imported; no API request made, the AI budget of this database is not used
 ```
 
-**2. Inspect the real AI results offline** (log in as `manager`; the dashboard defaults to *Real AI data*):
+**2. Inspect the historical AI results offline** (log in as `manager`; the dashboard defaults to *Real AI data*):
 
 * **Dashboard**: provenance shows 13 conversations analysed by Gemini and 3,987 unprocessed; 9 issues.
 * **Messages** → filter *Status: completed* → open one: Gemini's analysis (provider `gemini`,
@@ -91,13 +96,15 @@ Source, licence (CC BY-NC-SA 4.0, non-commercial), changes and residual privacy 
   100 per week the rules require. This is the honest result, not a failure.
 
 **3. Optional — run the full pipeline on the real texts offline with the mock** (results labelled `MOCK`,
-kept in the separate demo scope; the 13 Gemini results are not touched):
+kept in the separate demo scope; the 13 historical results are not touched). The mock only runs in demo
+mode: set `ECHOVANCE_AI_MODE=demo` and `LLM_PROVIDER=mock` in `.env` (restart `runserver`), then
 
 ```powershell
 .venv\Scripts\python manage.py run_analysis --limit 5000   # Provider: MOCK ... 3,987 conversations
 ```
 
-Then **Dashboard → Mock demo data**, **Alerts → Detect trends → scope Mock demo analyses** (5 weekly
+Switch back to `ECHOVANCE_AI_MODE=real` / `LLM_PROVIDER=openai` for real analysis; the mock results stay in
+the demo scope. Then **Dashboard → Mock demo data**, **Alerts → Detect trends → scope Mock demo analyses** (5 weekly
 windows, 20 `surge` alerts on the real conversations, e.g. `account_access.login_failure`: 35 vs. a
 baseline mean of 19 in the week of 24 Nov), open an alert, *Acknowledge*, *Suggest action with AI*
 (a `[MOCK]` template proposal, status **Proposed**), *Approve* → *Assign* to `agent1` → log in as `agent1`
@@ -115,10 +122,10 @@ Copy-Item data\spotifycares_public\eval\*.csv data\eval\
 
 ### What works offline vs. what needs an API key
 
-| Offline (no key, no cost) | Needs `GEMINI_API_KEY` + an owner-authorised budget |
+| Offline (no key, no cost) | Needs `OPENAI_API_KEY` + an owner-authorised budget |
 |---|---|
-| import the real subset; inspect the 13 genuine Gemini results, their evidence, issues and usage | analysing any further conversation with Gemini (UI *Analyse*, jobs, `promote_mock`) |
-| full pipeline with the labelled mock: grouping, trends, alerts, `[MOCK]` action proposals, approval workflow | real (non-mock) AI action proposals |
+| import the real subset; inspect the 13 genuine historical (Gemini) results, their evidence, issues and usage | analysing any further conversation with OpenAI (UI *Analyse*, jobs, *re-analyse mock-analysed*) |
+| full pipeline with the labelled mock (demo mode): grouping, trends, alerts, `[MOCK]` action proposals, approval workflow | real AI action proposals (*Suggest action with AI* in real mode) |
 | human corrections, blind labelling, REST API, tests, benchmark | real-scope trend alerts (need ≥ 100 real analyses per week) and AI quality metrics |
 
 The REST API offers the same steps, e.g. `POST /api/alerts/detect/ {"scope": "demo"}`;
@@ -137,41 +144,52 @@ server. It writes records (an action, an alert review) and needs at least one op
 review database after step 3 of the real-data walkthrough (or with the fixture):
 `.venv\Scripts\python scripts\smoke_test.py --base http://127.0.0.1:8000 --password <demo password>`.
 
-## Real Gemini integration
+## OpenAI integration
 
-Real analysis is **off by default** and does not work without all of the following:
+New AI analysis (issue extraction) and AI action suggestions use **OpenAI GPT** (`OPENAI_MODEL`, default
+`gpt-4o-mini`) through Chat Completions with **strict JSON-schema structured output**; the returned JSON is
+still validated by the application (taxonomy, verbatim evidence, consistency) and never trusted blindly.
+Requirements:
 
-1. A valid Google AI Studio key in `GEMINI_API_KEY`, `ECHOVANCE_AI_MODE=real`, `LLM_PROVIDER=gemini`.
-2. An owner-authorised request budget. A new database starts with `LLM_INITIAL_AUTHORIZED_REQUESTS`
-   (default 3); raising it is explicit and capped by `LLM_LIFETIME_REQUEST_CEILING`:
+1. `ECHOVANCE_AI_MODE=real`, `LLM_PROVIDER=openai` (both pre-set in `.env.example`) and a valid
+   `OPENAI_API_KEY` from <https://platform.openai.com/api-keys> (an account with API credit).
+2. An owner-authorised request budget. A new database allows `LLM_INITIAL_AUTHORIZED_REQUESTS` (default
+   **3**); raising it is explicit and capped by `LLM_LIFETIME_REQUEST_CEILING` (default **20**):
    ```powershell
-   .venv\Scripts\python manage.py llm_budget                           # used / authorised / remaining / halted
-   .venv\Scripts\python manage.py llm_budget --authorize 10 --confirm  # cumulative total
+   .venv\Scripts\python manage.py llm_budget                           # used / authorised / remaining / cost / halted
+   .venv\Scripts\python manage.py llm_budget --authorize 10 --confirm  # cumulative total (<= 20)
    ```
-3. Data the privacy gate may send: the Gemini **free tier only ever receives imports classified `public`**
-   (`GEMINI_TIER=paid` requires both token prices and allows `LLM_PAID_ALLOWED_DATA_CLASSES`).
+3. Prices and a cost ceiling. `.env.example` sets the gpt-4o-mini list prices (**$0.15 / 1M input,
+   $0.60 / 1M output tokens**) and `LLM_MONTHLY_COST_CEILING_USD=1.00`. One analysis is admitted at a
+   worst-case estimate of ~3,100 input + 1,024 output tokens (≈ $0.0011) and billed at its real token usage
+   (typically ~$0.0003); 20 requests stay under $0.03. If you change `OPENAI_MODEL`, update both prices:
+   empty prices refuse every request ("pricing unknown"), and a ceiling of 0 blocks every request.
+4. The privacy gate sends only imports classified `public` or `internal` (`LLM_PAID_ALLOWED_DATA_CLASSES`);
+   `confidential` data is never sent. The real subset is imported as `public`.
 
-Bulk work runs as **jobs**: *AI jobs → New job* (new conversations | re-analyse mock-analysed | retry
-failed | specific ids) → a manager clicks *Authorise* (refused if the global budget cannot cover it) →
-worker: `.venv\Scripts\python manage.py process_jobs --loop` (safe to stop and restart). The UI/API
-*Analyse* button sends at most `LLM_REAL_MAX_PER_REQUEST` (default 1) message per click;
-`run_analysis` refuses real providers without `--allow-real`. Afterwards run
-`manage.py detect_trends --all` (real scope) and `manage.py llm_budget --log` (every real request with
-status, tokens, latency, cost). On the real subset, a *new conversations* job analyses still-unprocessed
-messages and a *re-analyse mock-analysed* job replaces mock results; new analyses use the current prompt
-(`extract-v2`), while the 13 imported `extract-v1` results stay as they are.
+Run new analysis with **Messages → Analyse** (UI/API send at most `LLM_REAL_MAX_PER_REQUEST`, default **1**
+message per click), or bulk work as **jobs**: *AI jobs → New job* (new conversations | re-analyse
+mock-analysed | retry failed | specific ids) → a manager clicks *Authorise* (refused if the global budget
+cannot cover it) → worker: `.venv\Scripts\python manage.py process_jobs --loop` (safe to stop and restart).
+`run_analysis` refuses real providers without `--allow-real`. Afterwards run `manage.py detect_trends --all`
+(real scope) and `manage.py llm_budget --log` (every real request with status, tokens, latency and cost).
+New analyses use the current prompt (`extract-v2`); the 13 historical `extract-v1` Gemini results are kept
+as they are and never relabelled.
 
 Guarantees: every request is logged *before* it is sent and admitted only within the global budget, the
-job's limits, token/cost/rate limits and the privacy gate; quota/rate-limit/auth errors halt live calls
-with no retry (`llm_budget --clear-halt` after resolving); there is no fallback to another provider or
-to the mock; a failed real analysis is stored as failed and never shown as a result; identical redacted
-inputs reuse an earlier validated result. Before sending, names in explicit contexts, e-mails, phone-like
-and card-like numbers, account/order codes, IPs, street addresses, secrets, URLs and @handles are redacted.
+job's limits, token/cost/rate limits and the privacy gate; an invalid key, exhausted credit
+(`insufficient_quota`), rate limit or unknown model halts live calls with no retry
+(`llm_budget --clear-halt` after resolving); there is no fallback to another provider or to the mock; a
+failed real analysis is stored as failed and never shown as a result; identical redacted inputs reuse an
+earlier validated result. API keys are never written to logs or error messages. Before sending, names in
+explicit contexts, e-mails, phone-like and card-like numbers, account/order codes, IPs, street addresses,
+secrets, URLs and @handles are redacted.
 
-**Project status (honest):** during development 13 real Gemini requests were made (3 verification + a
-10-message pilot); their results are the snapshot in `data/spotifycares_public/gemini_snapshot.json`. AI
-quality metrics (precision/recall/F1) are **not yet measured**: they require
-independent human labels (see [Evaluation](#evaluation)) and an authorised real batch.
+**Project status (honest):** the 13 real requests made during development used Google Gemini (3
+verification + a 10-message pilot); their results are the snapshot in
+`data/spotifycares_public/gemini_snapshot.json`. No OpenAI request has been made by this project; the
+OpenAI path is verified with mocked HTTP only. AI quality metrics (precision/recall/F1) are **not yet
+measured**: they require independent human labels (see [Evaluation](#evaluation)) and an authorised real batch.
 
 ## Environment variables (`.env`)
 
@@ -183,21 +201,18 @@ independent human labels (see [Evaluation](#evaluation)) and an authorised real 
 | `DB_ENGINE` | `postgresql` | `sqlite` only for quick experiments (tests target PostgreSQL) |
 | `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` | `echovance`, `echovance`, —, `localhost`, `5432` | application DB |
 | `POSTGRES_ADMIN_USER`, `POSTGRES_ADMIN_PASSWORD` | `postgres`, empty | only for `scripts/setup_db.py` |
-| `ECHOVANCE_AI_MODE` | `demo` | `demo`: mock allowed, every result labelled MOCK · `real`: only real providers analyse, mock refused (code default `real`) |
-| `LLM_PROVIDER` | `mock` | `mock` \| `gemini` \| `openai` (refused unless enabled) |
-| `GEMINI_API_KEY` / `GEMINI_MODEL` | empty / `gemini-3.5-flash-lite` | real mode only |
-| `LLM_OPENAI_ENABLED` | `false` | must be `true` (with authorisation) before OpenAI can be used |
+| `ECHOVANCE_AI_MODE` | `real` | `real`: only OpenAI analyses, mock refused · `demo`: mock allowed, every result labelled MOCK |
+| `LLM_PROVIDER` | `openai` | `openai` \| `mock` (demo mode only) |
+| `OPENAI_API_KEY` / `OPENAI_MODEL` | empty / `gpt-4o-mini` | key for new AI analysis; without it new AI requests are refused |
 | `LLM_TIMEOUT_SECONDS` / `LLM_MAX_RETRIES` | `30` / `0` | quota/rate-limit errors are never retried |
 | `LLM_MAX_INPUT_CHARS` / `LLM_MAX_OUTPUT_TOKENS` | `1000` / `1024` | input/output bounds |
 | `LLM_INITIAL_AUTHORIZED_REQUESTS` | `3` | initial persisted authorised total (then only `llm_budget --authorize`) |
 | `LLM_REAL_MAX_PER_REQUEST` | `1` | real-provider messages per UI/API *Analyse* click |
 | `LLM_LIFETIME_REQUEST_CEILING` | `20` | maximum the authorised total may be raised to |
-| `GEMINI_TIER` | `free` | `free` ($0; public data only) \| `paid` (requires both prices) |
-| `GEMINI_PRICE_INPUT_PER_MTOK` / `..._OUTPUT_...` | empty | USD per 1M tokens; unknown prices on a paid tier ⇒ refused |
-| `LLM_MONTHLY_COST_CEILING_USD` | `0` | month-to-date spend ceiling |
+| `OPENAI_PRICE_INPUT_PER_MTOK` / `..._OUTPUT_...` | `0.15` / `0.60` | USD per 1M tokens of `OPENAI_MODEL` (gpt-4o-mini); empty ⇒ requests refused |
+| `LLM_MONTHLY_COST_CEILING_USD` | `1.00` | month-to-date spend ceiling (`0` blocks every request) |
 | `LLM_MAX_INPUT_TOKENS_PER_REQUEST` / `LLM_RATE_LIMIT_RPM` | `4000` / `10` | per-request bound / request spacing |
-| `LLM_PAID_ALLOWED_DATA_CLASSES` | `public,internal` | privacy gate for paid tiers (`confidential` is never sent) |
-| `GROUPING_SIMILARITY` | `tfidf` | `tfidf` (local, free) \| `gemini_embedding` (budgeted API) |
+| `LLM_PAID_ALLOWED_DATA_CLASSES` | `public,internal` | data classes OpenAI may receive (`confidential` is never sent) |
 | `CSV_MAX_UPLOAD_BYTES` / `CSV_MAX_ROWS` | `5242880` / `20000` | web upload limits |
 
 ## Tests
@@ -210,13 +225,13 @@ independent human labels (see [Evaluation](#evaluation)) and an authorised real 
 ```
 
 Tests never call a real provider, whatever `.env` says: they force the mock or mock the HTTP transport,
-and all fixtures are synthetic (one test additionally checks that the shipped public data and Gemini snapshot import consistently).
+and all fixtures are synthetic (one test additionally checks that the shipped public data and the historical snapshot import consistently).
 
 | Test module | Covers |
 |---|---|
 | `test_imports.py` | valid/idempotent import, duplicates, partial failure, bad dates/columns/encoding, size/row limits, customer vs agent separation, PII redaction |
-| `test_llm_client.py` / `test_llm_budget.py` | budget guard, bounded retries, halt on quota/rate-limit/auth, malformed JSON, OpenAI disabled, Gemini request shape, persisted budget, CLI confirmation, 1-message cap, outbound redaction |
-| `test_real_ai.py` | real Gemini code path with mocked HTTP: mock refused in real mode, no fallback, mock→real promotion, jobs and limits, pricing, rate limiting, privacy gate, stale alerts, grouping suggestions, corrections, blind labelling |
+| `test_llm_client.py` / `test_llm_budget.py` | budget guard, bounded retries, halt on quota/rate-limit/auth, malformed JSON, OpenAI request shape (strict JSON schema, Bearer key), error mapping incl. invalid key / insufficient_quota / unknown model, unusable responses, key masking, persisted budget, CLI confirmation, 1-message cap, outbound redaction |
+| `test_real_ai.py` | real OpenAI code path (openai SDK over mocked HTTP): mock refused in real mode, no fallback, mock→real promotion, jobs and limits, gpt-4o-mini pricing and cost ceiling, rate limiting, privacy gate, stale alerts, grouping suggestions, corrections, blind labelling |
 | `test_extraction.py` / `test_prompt_quality.py` | multi-aspect extraction, hallucinated evidence, taxonomy pairs, prompt-injection delimiting, strict schema, split/leakage guards |
 | `test_analysis.py` / `test_latency.py` | idempotent runs, failure persistence & retry, supersession, latency breakdown |
 | `test_trends.py` | half-open windows, surge/emerging thresholds, insufficient history, de-duplication |
@@ -302,8 +317,8 @@ feedback/
   migrations/           schema + role groups + data backfills (0001–0009)
   services/             imports, analysis, jobs, grouping, trends, actions, review, corrections,
                         llm_budget, privacy_gate, split_guard, stats, evaluation, snapshots
-  ai/                   client (Gemini / OpenAI / Mock), extraction, actions, privacy (redaction),
-                        similarity (TF-IDF, Gemini embeddings), mock_rules
+  ai/                   client (OpenAI / Mock), extraction, actions, privacy (redaction),
+                        similarity (local TF-IDF), mock_rules
   api/                  DRF serializers, viewsets, routes
   web/                  views, forms, urls, context processor
   templates/feedback/   server-rendered pages + partials

@@ -9,11 +9,13 @@ from datetime import datetime, timedelta, timezone
 import httpx
 import pytest
 
-from feedback.ai.client import GeminiProvider, LLMClient, LLMError, ProviderReply
+from feedback.ai.client import LLMClient, LLMError, ProviderReply
 from feedback.models import LLMRequestLog, MessageAnalysis
 from feedback.services import llm_budget
 from feedback.services.analysis import AnalysisService
 from tests import factories
+from tests.fake_openai import chat_completion
+from tests.fake_openai import provider as openai_provider
 
 
 class FakeClock:
@@ -102,9 +104,9 @@ def test_mock_provider_has_no_queue_wait():
 
 @pytest.mark.django_db
 def test_rate_limited_job_records_true_provider_latency(settings):
-    """End-to-end: real RequestBudget at 10 rpm + Gemini provider over mocked HTTP."""
+    """End-to-end: real RequestBudget at 10 rpm + OpenAI provider over mocked HTTP."""
     settings.ECHOVANCE_AI_MODE = "real"
-    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "GEMINI_TIER": "free", "RATE_LIMIT_RPM": 10}
+    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "RATE_LIMIT_RPM": 10}
     llm_budget.authorize(5)
     clock = FakeClock()
     b = factories.batch()
@@ -115,12 +117,9 @@ def test_rate_limited_job_records_true_provider_latency(settings):
         clock.advance(1.5)  # the provider takes 1.5 s
         out = {"message_type": "question", "is_complaint": False, "overall_sentiment": "neutral", "aspects": [],
                "needs_review": False, "review_reason": ""}
-        return httpx.Response(200, json={"candidates": [{"content": {"parts": [{"text": json.dumps(out)}]},
-                                                         "finishReason": "STOP"}],
-                                         "usageMetadata": {"promptTokenCount": 1000, "candidatesTokenCount": 50}})
+        return httpx.Response(200, json=chat_completion(json.dumps(out), completion_tokens=50))
 
-    provider = GeminiProvider(api_key="k", model="gemini-test", timeout=5, max_output_tokens=256,
-                              transport=httpx.MockTransport(handler))
+    provider = openai_provider(handler, max_output_tokens=256)
     guard = llm_budget.RequestBudget(sleep=clock.advance, now=clock.now)
     AnalysisService(LLMClient(provider, guard=guard, clock=clock)).run(limit=5)
     first, second = MessageAnalysis.objects.order_by("message__created_at")

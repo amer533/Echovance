@@ -16,11 +16,11 @@ class ImportForm(forms.Form):
                                     help_text="Brand support handle; its outbound tweets are stored as agent replies.")
     data_classification = forms.ChoiceField(
         choices=ImportBatch.DataClass.choices, initial=ImportBatch.DataClass.INTERNAL, required=False,
-        help_text="Privacy gate: the Gemini free tier may only receive 'public' data; confidential data is never "
-                  "sent to an external AI provider.")
+        help_text="Privacy gate: OpenAI may receive 'public' and 'internal' data (LLM_PAID_ALLOWED_DATA_CLASSES); "
+                  "confidential data is never sent to an external AI provider.")
 
     def clean_data_classification(self):
-        # Missing value -> "internal": never sent to the free tier (safe default, not "public").
+        # Missing value -> "internal" (safe default, not "public").
         return self.cleaned_data.get("data_classification") or ImportBatch.DataClass.INTERNAL
 
     def clean_file(self):
@@ -120,7 +120,7 @@ class JobForm(forms.Form):
                                       help_text="Default: one request per message (no retries).")
     max_cost_usd = forms.DecimalField(min_value=0, max_digits=10, decimal_places=4, required=False,
                                       label="Max cost (USD)",
-                                      help_text="Default: estimated cost (free tier = $0).")
+                                      help_text="Default: the estimated cost of the job's requests.")
 
     def parsed_message_ids(self) -> list[int]:
         raw = self.cleaned_data.get("message_ids") or ""

@@ -1,6 +1,6 @@
 """Regression tests for the real-AI upgrade.
 
-The REAL GeminiProvider code path is exercised with an httpx.MockTransport (no network): request
+The REAL OpenAIProvider code path (openai SDK) is exercised over an httpx.MockTransport (no network): request
 building, structured-output parsing, usage accounting, budget admission, privacy gate, promotion of
 mock analyses, jobs, provenance, stale alerts, hybrid grouping, action-v2, corrections, evaluation.
 """
@@ -12,7 +12,7 @@ import httpx
 import pytest
 from django.core.exceptions import PermissionDenied
 
-from feedback.ai.client import GeminiProvider, LLMClient, LLMConfigError, MockProvider, get_llm_client
+from feedback.ai.client import LLMClient, LLMConfigError, MockProvider, get_llm_client
 from feedback.ai.privacy import redact
 from feedback.models import (ActionItem, AnalysisJob, CustomerMessage, EvaluationLabel, IssueMention,
                              LLMRequestLog, MessageAnalysis)
@@ -20,6 +20,8 @@ from feedback.services import actions as action_service
 from feedback.services import corrections, evaluation, grouping, jobs, llm_budget, stats, trends
 from feedback.services.analysis import AnalysisService
 from tests import factories
+from tests.fake_openai import FakeOpenAI
+from tests.fake_openai import provider as openai_provider
 
 pytestmark = pytest.mark.django_db
 T0 = datetime(2017, 10, 4, tzinfo=timezone.utc)
@@ -27,66 +29,17 @@ CHARGE = "billing_subscription.unexpected_charge"
 STUDENT = "billing_subscription.student_plan"
 
 
-# ------------------------------------------------------------------ fake Gemini HTTP server
-class FakeGemini:
-    """Answers generateContent like Gemini would; behaviour is driven by keywords in the message."""
-
-    def __init__(self, fail_with=None):
-        self.calls = []
-        self.fail_with = fail_with  # (status, google_status, message) or callable(n) -> that tuple | None
-
-    def message_text(self, body):
-        user = body["contents"][0]["parts"][0]["text"]
-        return user.split("<customer_message>\n", 1)[-1].rsplit("\n</customer_message>", 1)[0]
-
-    def __call__(self, request):
-        body = json.loads(request.content)
-        self.calls.append(body)
-        fail = self.fail_with(len(self.calls)) if callable(self.fail_with) else self.fail_with
-        if fail:
-            status, gstatus, msg = fail
-            return httpx.Response(status, json={"error": {"code": status, "status": gstatus, "message": msg}})
-        if "action_suggestion" in json.dumps(body["generationConfig"]["responseSchema"]) or \
-                "evidence_refs" in json.dumps(body["generationConfig"]["responseSchema"]):
-            out = {"title": "Audit duplicate premium charges", "steps": ["Pull billing logs", "Reproduce"],
-                   "evidence_refs": [1], "rationale": "Several customers report double charges.",
-                   "limitations": "Small sample; tweets only.", "uncertainty": "medium",
-                   "needs_more_information": False}
-        else:
-            text = self.message_text(body)
-            if "charged twice" in text:
-                ev = "charged twice"
-                out = {"message_type": "complaint", "is_complaint": True, "overall_sentiment": "negative",
-                       "aspects": [{"category": "billing_subscription", "subtype": "unexpected_charge",
-                                    "sentiment": "negative", "summary": "Customer reports a duplicate charge.",
-                                    "evidence": ev, "evidence_basis": "explicit", "related_symptoms": []}],
-                       "needs_review": False, "review_reason": ""}
-            elif "student" in text:
-                out = {"message_type": "complaint", "is_complaint": True, "overall_sentiment": "negative",
-                       "aspects": [{"category": "billing_subscription", "subtype": "student_plan",
-                                    "sentiment": "negative", "summary": "Student discount problem.",
-                                    "evidence": "student", "evidence_basis": "explicit", "related_symptoms": []}],
-                       "needs_review": False, "review_reason": ""}
-            else:
-                out = {"message_type": "question", "is_complaint": False, "overall_sentiment": "neutral",
-                       "aspects": [], "needs_review": False, "review_reason": ""}
-        return httpx.Response(200, json={
-            "candidates": [{"content": {"parts": [{"text": json.dumps(out)}]}, "finishReason": "STOP"}],
-            "usageMetadata": {"promptTokenCount": 1000, "candidatesTokenCount": 100, "totalTokenCount": 1100}})
-
-
 @pytest.fixture
 def real_mode(settings):
     settings.ECHOVANCE_AI_MODE = "real"
-    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "GEMINI_API_KEY": "test-key", "GEMINI_TIER": "free",
-                    "GEMINI_MODEL": "gemini-test", "RATE_LIMIT_RPM": 60000, "MAX_RETRIES": 0}
+    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": "sk-test", "OPENAI_MODEL": "gpt-4o-mini",
+                    "RATE_LIMIT_RPM": 60000, "MAX_RETRIES": 0}
     return settings
 
 
-def gemini_client(server: FakeGemini, job=None) -> LLMClient:
-    provider = GeminiProvider(api_key="test-key", model="gemini-test", timeout=5, max_output_tokens=1024,
-                              transport=httpx.MockTransport(server))
-    return LLMClient(provider, max_retries=0, guard=llm_budget.RequestBudget(job=job), sleep=lambda s: None)
+def openai_client(server: FakeOpenAI, job=None) -> LLMClient:
+    return LLMClient(openai_provider(server), max_retries=0, guard=llm_budget.RequestBudget(job=job),
+                     sleep=lambda s: None)
 
 
 def authorize(n):
@@ -102,7 +55,7 @@ def test_real_mode_refuses_mock_provider(settings):
 
 
 def test_real_mode_missing_key_fails_closed(real_mode):
-    real_mode.LLM = {**real_mode.LLM, "GEMINI_API_KEY": ""}
+    real_mode.LLM = {**real_mode.LLM, "OPENAI_API_KEY": ""}
     with pytest.raises(LLMConfigError):
         get_llm_client()
 
@@ -112,15 +65,16 @@ def test_real_pipeline_with_mocked_http(real_mode):
     b = factories.batch()
     m1 = factories.message(b, text="@SpotifyCares I was charged twice this month")
     factories.message(b, text="@SpotifyCares how do I change my email?")
-    server = FakeGemini()
-    run = AnalysisService(gemini_client(server)).run(limit=10)
+    server = FakeOpenAI()
+    run = AnalysisService(openai_client(server)).run(limit=10)
     assert run.succeeded == 2 and len(server.calls) == 2
     a = m1.analyses.get()
-    assert (a.source, a.provider, a.model_name, a.is_current, a.input_tokens) == ("llm", "gemini", "gemini-test", True, 1000)
+    assert (a.source, a.provider, a.model_name, a.is_current, a.input_tokens) == ("llm", "openai", "gpt-4o-mini", True, 1000)
     mention = IssueMention.objects.get(message=m1)
     assert mention.source == "llm" and m1.text[mention.evidence_start:mention.evidence_end] == "charged twice"
     log = LLMRequestLog.objects.order_by("id").first()
-    assert log.status == "succeeded" and log.input_tokens == 1000 and log.cost_usd == Decimal(0)
+    assert log.status == "succeeded" and log.input_tokens == 1000 and log.output_tokens == 100
+    assert log.cost_usd == Decimal("0.000210")  # gpt-4o-mini: (1000 * $0.15 + 100 * $0.60) / 1M
     assert log.request_fingerprint and log.estimated_input_tokens > 0
     assert stats.provenance()["real_analysed"] == 2
 
@@ -128,8 +82,8 @@ def test_real_pipeline_with_mocked_http(real_mode):
 def test_provider_failure_never_falls_back_to_mock(real_mode):
     authorize(3)
     m = factories.message(text="I was charged twice")
-    server = FakeGemini(fail_with=(503, "UNAVAILABLE", "overloaded"))
-    run = AnalysisService(gemini_client(server)).run(limit=5)
+    server = FakeOpenAI(fail_with=(503, None, "overloaded"))
+    run = AnalysisService(openai_client(server)).run(limit=5)
     m.refresh_from_db()
     assert run.failed == 1 and m.analysis_status == "failed"
     assert not MessageAnalysis.objects.filter(source="mock").exists()
@@ -152,9 +106,9 @@ def test_promote_mock_supersedes_atomically_and_keeps_history(real_mode, setting
     assert mock_analysis.source == "mock" and m.mentions.filter(is_active=True, source="mock").exists()
     settings.ECHOVANCE_AI_MODE = "real"
     # default 'pending' selection would never pick an analysed message (the original gap)
-    assert AnalysisService(gemini_client(FakeGemini())).select_messages(10) == []
+    assert AnalysisService(openai_client(FakeOpenAI())).select_messages(10) == []
     authorize(3)
-    run = AnalysisService(gemini_client(FakeGemini())).run(limit=10, selection="promote_mock")
+    run = AnalysisService(openai_client(FakeOpenAI())).run(limit=10, selection="promote_mock")
     assert run.succeeded == 1
     m.refresh_from_db()
     current = m.analyses.get(is_current=True)
@@ -169,7 +123,7 @@ def test_failed_promotion_keeps_mock_out_of_real_metrics(real_mode, settings):
     (m,) = _mock_analyse("I was charged twice")
     settings.ECHOVANCE_AI_MODE = "real"
     authorize(3)
-    AnalysisService(gemini_client(FakeGemini(fail_with=(500, "INTERNAL", "boom")))).run(limit=5, selection="promote_mock")
+    AnalysisService(openai_client(FakeOpenAI(fail_with=(500, None, "boom")))).run(limit=5, selection="promote_mock")
     assert m.analyses.get(is_current=True).source == "mock"
     failed = m.analyses.get(source="llm")
     assert failed.status == "failed" and not failed.is_current
@@ -206,9 +160,9 @@ def test_job_limits_requests_tokens_and_cost(real_mode, manager):
     for i in range(5):
         factories.message(b, text=f"question {i}?")
     job = jobs.create_job(user=manager, selection="pending", max_messages=5, max_requests=2,
-                          client=gemini_client(FakeGemini()))
+                          client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
-    done = jobs.run_job(job.pk, client=gemini_client(FakeGemini(), job=job))
+    done = jobs.run_job(job.pk, client=openai_client(FakeOpenAI(), job=job))
     assert done.status == "stopped" and "job_request_limit" in done.stop_reason
     assert done.requests_used == 2 and LLMRequestLog.objects.filter(job=job).count() == 2
     assert CustomerMessage.objects.filter(analysis_status="pending").count() == 3  # untouched, resumable
@@ -218,23 +172,32 @@ def test_job_token_limit(real_mode, manager):
     authorize(10)
     factories.message(text="question?")
     job = jobs.create_job(user=manager, selection="pending", max_messages=1, max_input_tokens=10,
-                          client=gemini_client(FakeGemini()))
+                          client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
-    done = jobs.run_job(job.pk, client=gemini_client(FakeGemini(), job=job))
+    done = jobs.run_job(job.pk, client=openai_client(FakeOpenAI(), job=job))
     assert "job_token_limit" in done.stop_reason and LLMRequestLog.objects.count() == 0
 
 
-def test_paid_tier_without_prices_is_refused_and_monthly_ceiling(real_mode):
+def test_default_openai_pricing_admits_requests_within_the_cost_ceiling(real_mode):
+    """gpt-4o-mini prices + the default $1.00 monthly ceiling must not silently block OpenAI requests."""
     authorize(10)
-    real_mode.LLM = {**real_mode.LLM, "GEMINI_TIER": "paid"}
+    assert llm_budget.prices("openai") == (Decimal("0.15"), Decimal("0.60"))
+    assert llm_budget.estimate_cost("openai", 2000, 1024) == Decimal("0.0009144")  # (2000*0.15 + 1024*0.60) / 1M
+    llm_budget.RequestBudget().acquire("openai", "gpt-4o-mini", "t", estimated_input_tokens=2000)
+    assert LLMRequestLog.objects.count() == 1
+
+
+def test_missing_prices_are_refused_and_monthly_ceiling_enforced(real_mode):
+    authorize(10)
+    real_mode.LLM = {**real_mode.LLM, "OPENAI_PRICE_INPUT_PER_MTOK": "", "OPENAI_PRICE_OUTPUT_PER_MTOK": ""}
     guard = llm_budget.RequestBudget()
     with pytest.raises(llm_budget.BudgetError) as exc:
-        guard.acquire("gemini", "m", "t", estimated_input_tokens=100)
+        guard.acquire("openai", "m", "t", estimated_input_tokens=100)
     assert exc.value.code == "pricing_unknown"
-    real_mode.LLM = {**real_mode.LLM, "GEMINI_PRICE_INPUT_PER_MTOK": "1.0", "GEMINI_PRICE_OUTPUT_PER_MTOK": "4.0",
-                     "MONTHLY_COST_CEILING_USD": "0.001"}
-    with pytest.raises(llm_budget.BudgetError) as exc:  # 100 in + 1024 out tokens > $0.001
-        guard.acquire("gemini", "m", "t", estimated_input_tokens=100)
+    real_mode.LLM = {**real_mode.LLM, "OPENAI_PRICE_INPUT_PER_MTOK": "0.15", "OPENAI_PRICE_OUTPUT_PER_MTOK": "0.60",
+                     "MONTHLY_COST_CEILING_USD": "0.0001"}
+    with pytest.raises(llm_budget.BudgetError) as exc:  # 100 in + 1024 out tokens = $0.000629 > $0.0001
+        guard.acquire("openai", "m", "t", estimated_input_tokens=100)
     assert exc.value.code == "cost_ceiling_reached" and LLMRequestLog.objects.count() == 0
 
 
@@ -248,14 +211,14 @@ def test_rate_limit_waits_between_requests(real_mode):
         clock[0] += timedelta(seconds=sec)
 
     guard = llm_budget.RequestBudget(sleep=sleep, now=lambda: clock[0])
-    guard.acquire("gemini", "m", "t")
-    guard.acquire("gemini", "m", "t")
+    guard.acquire("openai", "m", "t")
+    guard.acquire("openai", "m", "t")
     assert waits and abs(sum(waits) - 10.0) < 0.01  # 6 rpm -> 10 s spacing
 
 
 def test_authorisation_cannot_exceed_global_budget(real_mode, manager):
     authorize(2)
-    job = jobs.create_job(user=manager, selection="pending", max_messages=5, client=gemini_client(FakeGemini()))
+    job = jobs.create_job(user=manager, selection="pending", max_messages=5, client=openai_client(FakeOpenAI()))
     with pytest.raises(action_service.ActionError, match="global real-request budget"):
         jobs.authorize(job, manager)
     job.refresh_from_db()
@@ -264,7 +227,7 @@ def test_authorisation_cannot_exceed_global_budget(real_mode, manager):
 
 def test_interrupted_requests_are_closed_but_still_counted(real_mode):
     authorize(5)
-    t = llm_budget.RequestBudget().acquire("gemini", "m", "t")
+    t = llm_budget.RequestBudget().acquire("openai", "m", "t")
     LLMRequestLog.objects.filter(pk=t).update(created_at=datetime(2020, 1, 1, tzinfo=timezone.utc))
     assert llm_budget.close_interrupted() == 1
     assert LLMRequestLog.objects.get(pk=t).status == "interrupted" and llm_budget.status()["used"] == 1
@@ -272,20 +235,20 @@ def test_interrupted_requests_are_closed_but_still_counted(real_mode):
 
 # ------------------------------------------------------------------ jobs: permissions, resume, cancel
 def test_job_requires_manager_authorisation(real_mode, analyst, manager):
-    job = jobs.create_job(user=analyst, selection="pending", max_messages=1, client=gemini_client(FakeGemini()))
+    job = jobs.create_job(user=analyst, selection="pending", max_messages=1, client=openai_client(FakeOpenAI()))
     with pytest.raises(PermissionDenied):
         jobs.authorize(job, analyst)
-    assert jobs.run_job(job.pk, client=gemini_client(FakeGemini())).status == "draft"  # draft never runs
+    assert jobs.run_job(job.pk, client=openai_client(FakeOpenAI())).status == "draft"  # draft never runs
     with pytest.raises(PermissionDenied):
         jobs.create_job(user=factories.user("v2", "Viewers"), selection="pending", max_messages=1,
-                        client=gemini_client(FakeGemini()))
+                        client=openai_client(FakeOpenAI()))
 
 
 def test_paused_job_resumes_without_reprocessing(real_mode, manager):
     authorize(10)
     b = factories.batch()
     msgs = [factories.message(b, text=f"question {i}?", created=T0 + timedelta(minutes=i)) for i in range(4)]
-    job = jobs.create_job(user=manager, selection="pending", max_messages=4, client=gemini_client(FakeGemini()))
+    job = jobs.create_job(user=manager, selection="pending", max_messages=4, client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
 
     def pause_after_two(n):
@@ -293,20 +256,20 @@ def test_paused_job_resumes_without_reprocessing(real_mode, manager):
             AnalysisJob.objects.filter(pk=job.pk).update(status="paused")
         return None
 
-    server = FakeGemini(fail_with=pause_after_two)
-    first = jobs.run_job(job.pk, client=gemini_client(server, job=job))
+    server = FakeOpenAI(fail_with=pause_after_two)
+    first = jobs.run_job(job.pk, client=openai_client(server, job=job))
     assert first.status == "paused" and first.processed == 2
     jobs.resume(first, manager)
-    server2 = FakeGemini()
-    done = jobs.run_job(job.pk, client=gemini_client(server2, job=job))
+    server2 = FakeOpenAI()
+    done = jobs.run_job(job.pk, client=openai_client(server2, job=job))
     assert done.status == "completed" and done.processed == 4 and len(server2.calls) == 2
     assert MessageAnalysis.objects.filter(message__in=msgs).count() == 4  # nothing analysed twice
 
 
 def test_cancelled_job_stops(real_mode, manager):
-    job = jobs.create_job(user=manager, selection="pending", max_messages=1, client=gemini_client(FakeGemini()))
+    job = jobs.create_job(user=manager, selection="pending", max_messages=1, client=openai_client(FakeOpenAI()))
     jobs.cancel(job, manager)
-    assert jobs.run_job(job.pk, client=gemini_client(FakeGemini())).status == "cancelled"
+    assert jobs.run_job(job.pk, client=openai_client(FakeOpenAI())).status == "cancelled"
     with pytest.raises(action_service.ActionError):
         jobs.authorize(job, manager)
 
@@ -314,10 +277,10 @@ def test_cancelled_job_stops(real_mode, manager):
 def test_job_never_retries_a_failed_message_within_itself(real_mode, manager):
     authorize(10)
     factories.message(text="question?")
-    job = jobs.create_job(user=manager, selection="pending", max_messages=5, client=gemini_client(FakeGemini()))
+    job = jobs.create_job(user=manager, selection="pending", max_messages=5, client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
-    server = FakeGemini(fail_with=(400, "INVALID_ARGUMENT", "bad"))
-    done = jobs.run_job(job.pk, client=gemini_client(server, job=job))
+    server = FakeOpenAI(fail_with=(400, "invalid_request", "bad"))
+    done = jobs.run_job(job.pk, client=openai_client(server, job=job))
     assert len(server.calls) == 1 and done.failed == 1 and done.status == "completed"
 
 
@@ -325,9 +288,9 @@ def test_process_jobs_command_runs_only_authorised(real_mode, manager, monkeypat
     from django.core.management import call_command
     authorize(3)
     factories.message(text="question?")
-    draft = jobs.create_job(user=manager, selection="pending", max_messages=1, client=gemini_client(FakeGemini()))
-    server = FakeGemini()
-    monkeypatch.setattr("feedback.services.jobs.get_llm_client", lambda: gemini_client(server))
+    draft = jobs.create_job(user=manager, selection="pending", max_messages=1, client=openai_client(FakeOpenAI()))
+    server = FakeOpenAI()
+    monkeypatch.setattr("feedback.services.jobs.get_llm_client", lambda: openai_client(server))
     call_command("process_jobs")
     assert not server.calls and AnalysisJob.objects.get(pk=draft.pk).status == "draft"
     jobs.authorize(draft, manager)
@@ -341,8 +304,8 @@ def test_identical_inputs_are_reused_not_resent(real_mode):
     b = factories.batch()
     m1 = factories.message(b, text="@111 I was charged twice", created=T0)
     m2 = factories.message(b, text="@222 I was charged twice", created=T0 + timedelta(hours=1))  # same after redaction
-    server = FakeGemini()
-    run = AnalysisService(gemini_client(server)).run(limit=5)
+    server = FakeOpenAI()
+    run = AnalysisService(openai_client(server)).run(limit=5)
     assert run.succeeded == 2 and len(server.calls) == 1
     a2 = m2.analyses.get()
     assert a2.reused_from == m1.analyses.get() and a2.input_tokens == 0
@@ -351,12 +314,13 @@ def test_identical_inputs_are_reused_not_resent(real_mode):
 
 
 # ------------------------------------------------------------------ privacy gate
-def test_free_tier_never_receives_internal_or_confidential_data(real_mode):
+def test_restricted_policy_never_sends_internal_or_confidential_data(real_mode):
     authorize(5)
+    real_mode.LLM = {**real_mode.LLM, "ALLOWED_DATA_CLASSES": {"openai:paid": ["public"]}}  # LLM_PAID_ALLOWED_DATA_CLASSES=public
     internal = factories.message(factories.batch("internal"), text="I was charged twice")
     confidential = factories.message(factories.batch("confidential"), text="I was charged twice too")
-    server = FakeGemini()
-    run = AnalysisService(gemini_client(server)).run(limit=5)
+    server = FakeOpenAI()
+    run = AnalysisService(openai_client(server)).run(limit=5)
     assert server.calls == [] and LLMRequestLog.objects.count() == 0 and run.failed == 2
     for m in (internal, confidential):
         m.refresh_from_db()
@@ -365,16 +329,14 @@ def test_free_tier_never_receives_internal_or_confidential_data(real_mode):
     assert stats.provenance()["privacy_blocked"] == 2
 
 
-def test_paid_tier_policy_allows_internal_but_never_confidential(real_mode):
+def test_openai_policy_allows_internal_but_never_confidential(real_mode):
     authorize(5)
-    real_mode.LLM = {**real_mode.LLM, "GEMINI_TIER": "paid", "GEMINI_PRICE_INPUT_PER_MTOK": "0.1",
-                     "GEMINI_PRICE_OUTPUT_PER_MTOK": "0.4", "MONTHLY_COST_CEILING_USD": "5",
-                     "ALLOWED_DATA_CLASSES": {**real_mode.LLM["ALLOWED_DATA_CLASSES"],
-                                              "gemini:paid": ["public", "internal"]}}
+    real_mode.LLM = {**real_mode.LLM, "OPENAI_PRICE_INPUT_PER_MTOK": "0.1", "OPENAI_PRICE_OUTPUT_PER_MTOK": "0.4",
+                     "MONTHLY_COST_CEILING_USD": "5", "ALLOWED_DATA_CLASSES": {"openai:paid": ["public", "internal"]}}
     factories.message(factories.batch("internal"), text="question one?")
     factories.message(factories.batch("confidential"), text="question two?")
-    server = FakeGemini()
-    AnalysisService(gemini_client(server)).run(limit=5)
+    server = FakeOpenAI()
+    AnalysisService(openai_client(server)).run(limit=5)
     assert len(server.calls) == 1
     assert LLMRequestLog.objects.get().cost_usd == Decimal("0.000140")  # 1000*0.1 + 100*0.4 per 1M
 
@@ -382,8 +344,8 @@ def test_paid_tier_policy_allows_internal_but_never_confidential(real_mode):
 def test_outbound_prompt_redacts_identifiers(real_mode):
     authorize(5)
     factories.message(text="My name is Jane Doe, order AB12CD34EF, card 4111 1111 1111 1111. charged twice! Thanks, Chad")
-    server = FakeGemini()
-    AnalysisService(gemini_client(server)).run(limit=1)
+    server = FakeOpenAI()
+    AnalysisService(openai_client(server)).run(limit=1)
     sent = json.dumps(server.calls[0])
     for secret in ("Jane Doe", "AB12CD34EF", "4111", "Chad"):
         assert secret not in sent
@@ -393,8 +355,8 @@ def test_outbound_prompt_redacts_identifiers(real_mode):
 def test_residual_risk_blocks_sending(real_mode):
     authorize(5)
     factories.message(text="my passport number is X")
-    server = FakeGemini()
-    AnalysisService(gemini_client(server)).run(limit=1)
+    server = FakeOpenAI()
+    AnalysisService(openai_client(server)).run(limit=1)
     assert server.calls == [] and "passport" not in redact("my passport number is X").counts
 
 
@@ -497,10 +459,10 @@ def test_real_action_proposal_cites_real_evidence_only(real_mode, manager, setti
     _mock_analyse("I was charged twice for premium")  # mock evidence for the same issue
     settings.ECHOVANCE_AI_MODE = "real"
     with pytest.raises(action_service.SuggestionError, match="real AI"):
-        action_service.suggest_with_ai(user=manager, issue=issue, client=gemini_client(FakeGemini()))
+        action_service.suggest_with_ai(user=manager, issue=issue, client=openai_client(FakeOpenAI()))
     real = factories.analysed_message(factories.batch(), T0, (CHARGE,), "charged twice!! fix")
-    server = FakeGemini()
-    action = action_service.suggest_with_ai(user=manager, issue=issue, client=gemini_client(server))
+    server = FakeOpenAI()
+    action = action_service.suggest_with_ai(user=manager, issue=issue, client=openai_client(server))
     assert action.status == "proposed" and action.origin == "ai" and not action.ai_is_mock
     assert action.steps == ["Pull billing logs", "Reproduce"] and action.limitations and action.uncertainty == "medium"
     assert list(action.evidence.values_list("message_id", flat=True)) == [real.pk]
@@ -551,7 +513,7 @@ def test_evaluation_uses_only_real_llm_predictions(real_mode, settings):
     assert evaluation.evaluate(gold)["status"] == "refused"
     settings.ECHOVANCE_AI_MODE = "real"
     authorize(3)
-    AnalysisService(gemini_client(FakeGemini())).run(limit=5, selection="promote_mock")
+    AnalysisService(openai_client(FakeOpenAI())).run(limit=5, selection="promote_mock")
     r = evaluation.evaluate(gold)
     assert r["status"] == "measured" and r["complaint_detection"]["f1"] == 1.0
     assert r["real_usage"]["requests"] == 1 and r["real_usage"]["mean_input_tokens"] == 1000
@@ -575,24 +537,6 @@ def test_labelling_rejects_unknown_message_with_404(client, analyst, message):
     assert client.post("/evaluation/label/", {"message": message, "message_type": "complaint"}).status_code == 404
 
 
-# ------------------------------------------------------------------ embeddings provider (optional)
-def test_gemini_embeddings_are_budgeted_and_cached(real_mode):
-    from feedback.ai.similarity import GeminiEmbeddingProvider
-    authorize(1)
-    calls = []
-
-    def handler(request):
-        body = json.loads(request.content)
-        calls.append(body)
-        return httpx.Response(200, json={"embeddings": [{"values": [1.0, 0.0]} for _ in body["requests"]]})
-
-    p = GeminiEmbeddingProvider("k", "emb", 5, llm_budget.RequestBudget(), transport=httpx.MockTransport(handler))
-    assert p.embed(["a", "b"]) == [[1.0, 0.0], [1.0, 0.0]]
-    assert LLMRequestLog.objects.get().purpose == "embedding"
-    with pytest.raises(llm_budget.BudgetError):
-        p.embed(["c"])  # budget of 1 used up
-
-
 def test_create_job_command_makes_seeded_eval_draft_without_sending(real_mode, analyst, monkeypatch):
     from django.core.management import call_command
     msgs = [factories.message(text=f"eval {i}?") for i in range(5)]
@@ -601,7 +545,7 @@ def test_create_job_command_makes_seeded_eval_draft_without_sending(real_mode, a
     call_command("create_job", "--user", analyst.username, "--eval-sample", "3")
     job = AnalysisJob.objects.get()
     assert job.status == "draft" and job.selection == "message_ids" and len(job.message_ids) == 3
-    assert job.provider == "gemini" and LLMRequestLog.objects.count() == 0
+    assert job.provider == "openai" and LLMRequestLog.objects.count() == 0
     call_command("create_job", "--user", analyst.username, "--eval-sample", "3")
     assert AnalysisJob.objects.order_by("id").last().message_ids == job.message_ids  # seeded -> reproducible
 
@@ -611,7 +555,7 @@ def test_dev_sample_selects_only_unused_dev_messages_and_never_reads_eval(real_m
     from django.core.management import call_command
     msgs = [factories.message(text=f"dev {i}?", created=T0 + timedelta(minutes=i)) for i in range(6)]
     used = msgs[0]
-    MessageAnalysis.objects.create(message=used, provider="gemini", model_name="m", prompt_version="v", is_mock=False,
+    MessageAnalysis.objects.create(message=used, provider="openai", model_name="m", prompt_version="v", is_mock=False,
                                    source="llm", status="succeeded", is_current=True)
     monkeypatch.setattr("feedback.services.jobs.dev_sample_ids", lambda: [m.source_message_id for m in msgs])
 
@@ -635,24 +579,39 @@ def test_stop_on_error_halts_at_first_provider_error(real_mode, manager):
     b = factories.batch()
     msgs = [factories.message(b, text=f"question {i}?", created=T0 + timedelta(minutes=i)) for i in range(4)]
     job = jobs.create_job(user=manager, selection="message_ids", message_ids=[m.pk for m in msgs], max_messages=4,
-                          stop_on_error=True, client=gemini_client(FakeGemini()))
+                          stop_on_error=True, client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
-    server = FakeGemini(fail_with=lambda n: (400, "INVALID_ARGUMENT", "bad") if n == 2 else None)
-    done = jobs.run_job(job.pk, client=gemini_client(server, job=job))
+    server = FakeOpenAI(fail_with=lambda n: (400, "invalid_request", "bad") if n == 2 else None)
+    done = jobs.run_job(job.pk, client=openai_client(server, job=job))
     assert done.status == "stopped" and "stop_on_error" in done.stop_reason
     assert len(server.calls) == 2 and done.processed == 2 and done.failed == 1
 
 
 def test_stop_on_error_halts_at_first_privacy_block(real_mode, manager):
     authorize(10)
-    internal = factories.message(factories.batch("internal"), text="question a?", created=T0)
+    confidential = factories.message(factories.batch("confidential"), text="question a?", created=T0)
     public = factories.message(factories.batch("public"), text="question b?", created=T0 + timedelta(minutes=1))
-    job = jobs.create_job(user=manager, selection="message_ids", message_ids=[internal.pk, public.pk],
-                          max_messages=2, stop_on_error=True, client=gemini_client(FakeGemini()))
+    job = jobs.create_job(user=manager, selection="message_ids", message_ids=[confidential.pk, public.pk],
+                          max_messages=2, stop_on_error=True, client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
-    server = FakeGemini()
-    done = jobs.run_job(job.pk, client=gemini_client(server, job=job))
+    server = FakeOpenAI()
+    done = jobs.run_job(job.pk, client=openai_client(server, job=job))
     assert done.status == "stopped" and "privacy_blocked" in done.stop_reason and server.calls == []
+
+
+def test_default_job_limits_afford_the_longest_message_at_openai_prices(real_mode, manager):
+    """Default job limits must cover the worst-case request admission (paid pricing exposed a gap)."""
+    authorize(5)
+    long = factories.message(text="charged twice " + "and still waiting for help " * 60)  # > LLM_MAX_INPUT_CHARS
+    job = jobs.create_job(user=manager, selection="message_ids", message_ids=[long.pk], max_messages=1,
+                          client=openai_client(FakeOpenAI()))
+    assert job.max_cost_usd == Decimal("0.0011")  # $0.00107565 worst case, rounded UP to 4 decimals
+    jobs.authorize(job, manager)
+    server = FakeOpenAI()
+    done = jobs.run_job(job.pk, client=openai_client(server, job=job))
+    assert done.status == "completed" and done.processed == 1 and len(server.calls) == 1
+    assert done.needs_review == 1  # truncated to LLM_MAX_INPUT_CHARS -> flagged for review, by design
+    assert done.cost_usd == Decimal("0.000210") and done.cost_usd <= done.max_cost_usd
 
 
 def test_job_request_cap_holds_even_with_more_messages(real_mode, manager):
@@ -660,8 +619,8 @@ def test_job_request_cap_holds_even_with_more_messages(real_mode, manager):
     b = factories.batch()
     msgs = [factories.message(b, text=f"question {i}?", created=T0 + timedelta(minutes=i)) for i in range(12)]
     job = jobs.create_job(user=manager, selection="message_ids", message_ids=[m.pk for m in msgs], max_messages=12,
-                          max_requests=10, stop_on_error=True, client=gemini_client(FakeGemini()))
+                          max_requests=10, stop_on_error=True, client=openai_client(FakeOpenAI()))
     jobs.authorize(job, manager)
-    server = FakeGemini()
-    done = jobs.run_job(job.pk, client=gemini_client(server, job=job))
+    server = FakeOpenAI()
+    done = jobs.run_job(job.pk, client=openai_client(server, job=job))
     assert len(server.calls) == 10 and done.requests_used == 10 and "job_request_limit" in done.stop_reason

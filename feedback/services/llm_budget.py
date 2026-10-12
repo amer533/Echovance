@@ -5,7 +5,7 @@ Admission (under a row lock on the LLMBudget singleton) requires ALL of:
 
   * live calls not halted (quota / rate-limit / auth / model errors halt until a human clears it)
   * used < min(authorised total, LLM_LIFETIME_REQUEST_CEILING)      [global, owner-authorised]
-  * known prices for the provider/tier (free tier = $0; paid tier needs explicit prices)
+  * known prices for the model (OPENAI_PRICE_*; unknown prices refuse the request)
   * estimated input tokens <= LLM_MAX_INPUT_TOKENS_PER_REQUEST
   * month-to-date cost + estimated cost <= LLM_MONTHLY_COST_CEILING_USD
   * the job's own limits (requests, input/output tokens, cost)        [per-run, manager-authorised]
@@ -52,20 +52,15 @@ def _budget(lock: bool = False) -> LLMBudget:
 
 
 def provider_tier(provider: str) -> str:
-    if provider == "gemini":
-        return settings.LLM["GEMINI_TIER"]
-    return "paid"
+    return "paid"  # OpenAI API usage is always billed
 
 
 def prices(provider: str) -> tuple[Decimal, Decimal] | None:
     """USD per 1M (input, output) tokens, or None when unknown (requests are then refused)."""
-    cfg = settings.LLM
-    if provider == "gemini" and cfg["GEMINI_TIER"] == "free":
-        return Decimal(0), Decimal(0)
-    key = {"gemini": "GEMINI", "openai": "OPENAI"}.get(provider)
-    if not key:
+    if provider != "openai":
         return None
-    pin, pout = cfg.get(f"{key}_PRICE_INPUT_PER_MTOK", ""), cfg.get(f"{key}_PRICE_OUTPUT_PER_MTOK", "")
+    cfg = settings.LLM
+    pin, pout = cfg.get("OPENAI_PRICE_INPUT_PER_MTOK", ""), cfg.get("OPENAI_PRICE_OUTPUT_PER_MTOK", "")
     if pin == "" or pout == "":
         return None
     return Decimal(str(pin)), Decimal(str(pout))
@@ -167,8 +162,8 @@ class RequestBudget:
                               f"{cfg['MAX_INPUT_TOKENS_PER_REQUEST']} per-request limit.")
         est_cost = estimate_cost(provider, estimated_input_tokens, max_out)
         if est_cost is None:
-            raise BudgetError("pricing_unknown", f"No prices configured for {provider} ({provider_tier(provider)} "
-                              "tier); set them in .env before using a paid tier.")
+            raise BudgetError("pricing_unknown", f"No prices configured for {provider}; set "
+                              "OPENAI_PRICE_INPUT_PER_MTOK and OPENAI_PRICE_OUTPUT_PER_MTOK in .env.")
         interval = 60.0 / max(1, cfg["RATE_LIMIT_RPM"])
         waited = 0.0
         while True:

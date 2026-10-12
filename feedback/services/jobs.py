@@ -12,7 +12,7 @@ Lifecycle: draft --authorize(manager)--> authorized --worker--> running --> comp
 from __future__ import annotations
 
 from datetime import timedelta
-from decimal import Decimal
+from decimal import ROUND_UP, Decimal
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -32,10 +32,13 @@ OPEN = {J.DRAFT, J.AUTHORIZED, J.RUNNING, J.PAUSED}
 
 
 def per_message_estimate(provider: str) -> dict:
-    """Admission-style estimate for one extraction request (static prompt dominates)."""
+    """Upper bound for one extraction request, computed like budget admission: system prompt + schema +
+    the longest possible user prompt (the message is truncated to LLM_MAX_INPUT_CHARS). Default job
+    limits use it, so a job can always afford the requests it was authorised for."""
     import json
-    static = len(extraction.SYSTEM_PROMPT) + len(json.dumps(extraction.OUTPUT_SCHEMA))
-    est_in = (static + 400) // 3 + 1  # + a typical redacted tweet and delimiters
+    max_chars = settings.LLM["MAX_INPUT_CHARS"]
+    longest_prompt, _ = extraction.build_user_prompt("x" * max_chars, max_chars)
+    est_in = llm_budget.estimate_tokens(extraction.SYSTEM_PROMPT, longest_prompt, json.dumps(extraction.OUTPUT_SCHEMA))
     est_out = settings.LLM["MAX_OUTPUT_TOKENS"]
     cost = llm_budget.estimate_cost(provider, est_in, est_out)
     return {"input_tokens": est_in, "max_output_tokens": est_out, "cost_usd": cost}
@@ -73,7 +76,9 @@ def create_job(*, user, selection: str, max_messages: int, message_ids: list[int
         max_requests=max_requests,
         max_input_tokens=max_input_tokens if max_input_tokens is not None else est["input_tokens"],
         max_output_tokens=max_output_tokens if max_output_tokens is not None else est["max_output_tokens"],
-        max_cost_usd=max_cost_usd if max_cost_usd is not None else (est["cost_usd"] or Decimal(0)),
+        # stored with 4 decimals: round the default UP so it never falls below the admission estimate
+        max_cost_usd=max_cost_usd if max_cost_usd is not None else
+        (est["cost_usd"] or Decimal(0)).quantize(Decimal("0.0001"), rounding=ROUND_UP),
         stop_on_error=stop_on_error, created_by=user)
 
 

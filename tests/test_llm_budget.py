@@ -16,7 +16,7 @@ pytestmark = pytest.mark.django_db
 
 class FakeRealProvider:
     """Behaves like a real provider (is_mock=False) without any network access."""
-    name, model, is_mock = "gemini", "fake-flash", False
+    name, model, is_mock = "openai", "gpt-4o-mini", False
 
     def __init__(self, outcomes=None):
         self.outcomes = list(outcomes or [])
@@ -63,9 +63,9 @@ def test_real_run_never_exceeds_budget_and_logs_usage():
 def test_guard_refuses_beyond_budget_even_when_called_directly():
     guard = llm_budget.RequestBudget()
     for _ in range(3):
-        guard.acquire("gemini", "m", "test")
+        guard.acquire("openai", "m", "test")
     with pytest.raises(LLMError) as exc:
-        guard.acquire("gemini", "m", "test")
+        guard.acquire("openai", "m", "test")
     assert exc.value.code == "budget_exhausted"
 
 
@@ -120,7 +120,7 @@ def test_budget_command_requires_confirmation():
 
 
 def test_run_analysis_command_requires_allow_real(settings):
-    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "GEMINI_API_KEY": "test-key"}
+    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": "sk-test"}
     with pytest.raises(CommandError, match="--allow-real"):
         call_command("run_analysis", "--limit", "1")
 

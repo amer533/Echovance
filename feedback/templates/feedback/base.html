@@ -34,13 +34,13 @@
 {% endif %}
 <main id="content">
   {% if user.is_authenticated and llm_config.mock_refused %}
-    <div class="banner banner-error" role="alert"><strong>Real AI mode — no real provider configured.</strong> LLM_PROVIDER=mock is refused while ECHOVANCE_AI_MODE=real, so no analysis can run and nothing is fabricated. Configure Gemini, or switch to the clearly labelled demo mode.</div>
+    <div class="banner banner-error" role="alert"><strong>Real AI mode — no real provider configured.</strong> LLM_PROVIDER=mock is refused while ECHOVANCE_AI_MODE=real, so no analysis can run and nothing is fabricated. Configure OpenAI (LLM_PROVIDER=openai and OPENAI_API_KEY), or switch to the clearly labelled demo mode.</div>
   {% elif user.is_authenticated and llm_config.is_mock %}
     <div class="banner banner-warn" role="status"><strong>Demo mode (mock AI).</strong> Analyses and suggestions come from a deterministic keyword test double, not a real language model. Results are labelled <span class="badge badge-mock">MOCK</span>, live in the <em>demo</em> data scope and are not AI evaluation evidence.</div>
-  {% elif user.is_authenticated and llm_config.disabled %}
-    <div class="banner banner-error" role="alert"><strong>Provider disabled.</strong> OpenAI is disabled to protect a shared quota; AI requests will be refused. Use LLM_PROVIDER=mock or gemini.</div>
+  {% elif user.is_authenticated and llm_config.unsupported %}
+    <div class="banner banner-error" role="alert"><strong>Unsupported AI provider.</strong> LLM_PROVIDER={{ llm_config.provider }} is not supported; new AI analysis uses OpenAI (set LLM_PROVIDER=openai and OPENAI_API_KEY). Stored data and results remain fully available.</div>
   {% elif user.is_authenticated and not llm_config.credentials_present %}
-    <div class="banner banner-error" role="alert"><strong>LLM not configured.</strong> LLM_PROVIDER={{ llm_config.provider }} but its API key is empty; AI requests will be refused (no fallback to another provider).</div>
+    <div class="banner banner-error" role="alert"><strong>OpenAI not configured.</strong> LLM_PROVIDER={{ llm_config.provider }} but OPENAI_API_KEY is empty, so new AI requests will be refused (no fallback to another provider). Stored data and results remain fully available.</div>
   {% elif user.is_authenticated and llm_budget %}
     <div class="banner {% if llm_budget.halted or not llm_budget.remaining %}banner-error{% else %}banner-info{% endif %}" role="status"><strong>Live AI: {{ llm_config.provider }} / {{ llm_config.model }}.</strong>
       Real requests used {{ llm_budget.used }} of {{ llm_budget.authorized }} authorised (configured lifetime ceiling {{ llm_budget.lifetime_ceiling }}); {{ llm_budget.remaining }} remaining{% if llm_budget.failed %}, {{ llm_budget.failed }} failed{% endif %}.

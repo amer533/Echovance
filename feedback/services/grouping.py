@@ -17,7 +17,7 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from feedback import taxonomy
-from feedback.ai.similarity import TfidfSimilarity, dense_cosine
+from feedback.ai.similarity import TfidfSimilarity
 from feedback.models import GroupingSuggestion, Issue, IssueMention
 
 # Common spelling variants a provider might emit; mapped before validation.
@@ -85,33 +85,10 @@ def _top3(sims: list[float]) -> float:
     return sum(top) / len(top) if top else 0.0
 
 
-def _embedding_vectors(mentions: list[IssueMention]) -> tuple[list, str]:
-    """Gemini embeddings with a per-mention cache; every API call is budget-guarded."""
-    from feedback.ai.similarity import GeminiEmbeddingProvider
-    from feedback.services.llm_budget import RequestBudget
-    cfg = settings.LLM
-    model = cfg["GEMINI_EMBEDDING_MODEL"]
-    missing = [m for m in mentions if not m.embedding or m.embedding_model != model]
-    if missing:
-        provider = GeminiEmbeddingProvider(cfg["GEMINI_API_KEY"], model, cfg["TIMEOUT_SECONDS"], RequestBudget())
-        for i in range(0, len(missing), 100):
-            chunk = missing[i:i + 100]
-            for m, vec in zip(chunk, provider.embed([_doc(x) for x in chunk])):
-                m.embedding, m.embedding_model = vec, model
-                IssueMention.objects.filter(pk=m.pk).update(embedding=vec, embedding_model=model)
-    return [m.embedding for m in mentions], f"gemini-embedding:{model}"
-
-
 def similarity_scores(mention: IssueMention, candidates: list[IssueMention]) -> tuple[dict[int, list], str]:
     """Return {issue_id: [(similarity, mention_id), ...]} for candidates, and the method name."""
-    method = settings.GROUPING["SIMILARITY"]
-    docs = [mention] + candidates
-    if method == "gemini_embedding":
-        vecs, name = _embedding_vectors(docs)
-        sim = dense_cosine
-    else:
-        tf = TfidfSimilarity()
-        vecs, name, sim = tf.vectors([_doc(m) for m in docs]), tf.name, tf.cosine
+    tf = TfidfSimilarity()
+    vecs, name, sim = tf.vectors([_doc(m) for m in [mention] + candidates]), tf.name, tf.cosine
     out: dict[int, list] = {}
     for m, v in zip(candidates, vecs[1:]):
         out.setdefault(m.issue_id, []).append((sim(vecs[0], v), m.pk))

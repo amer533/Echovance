@@ -70,14 +70,14 @@ def test_run_analysis_endpoint_uses_mock_and_caps_batch(api, analyst):
     assert detail["analyses"][0]["is_mock"] is True and detail["analyses"][0]["mentions"]
 
 
-def test_run_analysis_reports_missing_credentials_and_disabled_provider(api, analyst, settings):
+def test_run_analysis_reports_missing_credentials_and_unsupported_provider(api, analyst, settings):
     api.force_authenticate(analyst)
-    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "GEMINI_API_KEY": ""}
+    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": ""}
     r = api.post("/api/analyses/run/", {"limit": 1}, format="json")
-    assert r.status_code == 503 and "GEMINI_API_KEY" in r.json()["detail"]
-    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": "sk-x", "OPENAI_ENABLED": False}
+    assert r.status_code == 503 and "OPENAI_API_KEY" in r.json()["detail"]
+    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "OPENAI_API_KEY": "sk-x"}
     r = api.post("/api/analyses/run/", {"limit": 1}, format="json")
-    assert r.status_code == 503 and "disabled" in r.json()["detail"]
+    assert r.status_code == 503 and "Unsupported" in r.json()["detail"]
 
 
 def _seed_alertable():

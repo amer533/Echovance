@@ -1,8 +1,7 @@
 """Privacy gate: decides whether a message may be sent to a given external provider/tier.
 
 Policy (settings.LLM["ALLOWED_DATA_CLASSES"]):
-  * gemini free tier  -> "public" only (free-tier content may be used to improve Google products)
-  * paid tiers        -> LLM_PAID_ALLOWED_DATA_CLASSES (default public,internal)
+  * OpenAI (paid API) -> LLM_PAID_ALLOWED_DATA_CLASSES (default public,internal)
   * "confidential"    -> never sent to an external provider
   * the local mock provider sends nothing externally and is always allowed
 After redaction, residual-risk signals (e.g. long digit sequences) also block sending.

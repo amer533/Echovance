@@ -1,13 +1,10 @@
 import json
 
 import httpx
-import openai
 import pytest
 
-from feedback.ai.client import (GeminiProvider, LLMClient, LLMConfigError, LLMError, MockProvider, OpenAIProvider,
-                                ProviderReply, get_llm_client)
-
-REQ = httpx.Request("POST", "https://api.openai.test/v1/chat/completions")
+from feedback.ai.client import LLMClient, LLMConfigError, LLMError, MockProvider, OpenAIProvider, ProviderReply, get_llm_client
+from tests.fake_openai import chat_completion, error_response, provider
 
 
 class NullGuard:
@@ -69,8 +66,7 @@ def test_retries_are_bounded():
     assert exc.value.code == "timeout" and exc.value.attempts == 3 and c.provider.calls == 3
 
 
-@pytest.mark.parametrize("code", ["rate_limited", "quota_exhausted", "auth_error", "model_not_found",
-                                  "free_tier_unavailable"])
+@pytest.mark.parametrize("code", ["rate_limited", "quota_exhausted", "auth_error", "model_not_found"])
 def test_quota_and_auth_errors_never_retry_and_halt(code):
     # even if a provider wrongly marks the error retryable, it is not retried
     c, guard = client([LLMError(code, "x", retryable=True), '{"a": 1}'], retries=5)
@@ -99,176 +95,106 @@ def test_mock_is_default_and_labelled():
     assert c.is_mock and c.provider_name == "mock" and c.guard is None
 
 
-def test_openai_disabled_without_explicit_flag(settings):
-    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": "sk-would-be-used", "OPENAI_ENABLED": False}
-    with pytest.raises(LLMConfigError, match="disabled"):
+def test_openai_requires_key_no_silent_fallback(settings):
+    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": ""}
+    with pytest.raises(LLMConfigError, match="OPENAI_API_KEY"):
         get_llm_client()
 
 
-def test_gemini_requires_key_no_silent_fallback(settings):
-    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "GEMINI_API_KEY": ""}
-    with pytest.raises(LLMConfigError, match="GEMINI_API_KEY"):
+@pytest.mark.parametrize("name", ["gemini", "magic"])
+def test_other_providers_are_rejected(settings, name):
+    # historical Gemini results are stored data only; no other provider can be called
+    settings.LLM = {**settings.LLM, "PROVIDER": name, "OPENAI_API_KEY": "sk-x"}
+    with pytest.raises(LLMConfigError, match="Unsupported"):
         get_llm_client()
 
 
-def test_unknown_provider_rejected(settings):
-    settings.LLM = {**settings.LLM, "PROVIDER": "magic"}
-    with pytest.raises(LLMConfigError):
-        get_llm_client()
-
-
-def test_gemini_client_gets_persisted_guard(settings, db):
-    settings.LLM = {**settings.LLM, "PROVIDER": "gemini", "GEMINI_API_KEY": "test-key"}
+def test_openai_client_gets_persisted_guard_and_default_model(settings, db):
+    settings.LLM = {**settings.LLM, "PROVIDER": "openai", "OPENAI_API_KEY": "sk-test"}
     c = get_llm_client()
-    assert not c.is_mock and c.guard is not None and c.model == settings.LLM["GEMINI_MODEL"]
+    assert not c.is_mock and c.guard is not None and c.provider_name == "openai"
+    assert c.model == settings.LLM["OPENAI_MODEL"] == "gpt-4o-mini"
 
 
-# ---------------- Gemini provider (HTTP mocked with httpx.MockTransport; no network) ----------------
-def gemini(handler, **kw):
-    return GeminiProvider(api_key="test-key-123", model="gemini-test", timeout=5, max_output_tokens=256,
-                          transport=httpx.MockTransport(handler), **kw)
+# ---------------- OpenAI provider (real SDK over httpx.MockTransport; no network) ----------------
+SCHEMA = {"type": "object", "properties": {"a": {"type": "integer"}}, "required": ["a"], "additionalProperties": False}
 
 
-def ok_body(text='{"ok": true}', finish="STOP", usage=True):
-    body = {"candidates": [{"content": {"parts": [{"text": text}]}, "finishReason": finish}]}
-    if usage:
-        body["usageMetadata"] = {"promptTokenCount": 120, "candidatesTokenCount": 30, "totalTokenCount": 150}
-    return body
-
-
-SCHEMA = {"type": "object", "additionalProperties": False,
-          "properties": {"a": {"type": "array", "items": {"type": "object", "additionalProperties": False,
-                                                           "properties": {"x": {"type": "string", "enum": ["p"]}},
-                                                           "required": ["x"]}}},
-          "required": ["a"]}
-
-
-def test_gemini_request_shape_and_usage():
+def test_openai_request_shape_and_usage():
     seen = {}
 
     def handler(request):
-        seen["url"] = str(request.url)
-        seen["headers"] = request.headers
-        seen["body"] = json.loads(request.content)
-        return httpx.Response(200, json=ok_body())
+        seen["url"], seen["auth"], seen["body"] = str(request.url), request.headers["authorization"], json.loads(request.content)
+        return httpx.Response(200, json=chat_completion('{"a": 1}', prompt_tokens=42, completion_tokens=7))
 
-    reply = gemini(handler).call("SYS", "USER", "message_extraction", SCHEMA)
-    assert json.loads(reply.text) == {"ok": True}
-    assert (reply.input_tokens, reply.output_tokens, reply.total_tokens) == (120, 30, 150)
-    assert seen["url"].endswith("/models/gemini-test:generateContent")
-    assert "key=" not in seen["url"] and seen["headers"]["x-goog-api-key"] == "test-key-123"
+    reply = provider(handler, max_output_tokens=256).call("SYS", "USER", "message_extraction", SCHEMA)
+    assert json.loads(reply.text) == {"a": 1}
+    assert (reply.input_tokens, reply.output_tokens, reply.total_tokens) == (42, 7, 49)
+    assert seen["url"].endswith("/chat/completions") and "sk-test-key-123" not in seen["url"]
+    assert seen["auth"] == "Bearer sk-test-key-123"  # key only in the Authorization header
     body = seen["body"]
-    assert body["systemInstruction"]["parts"][0]["text"] == "SYS"
-    assert body["contents"] == [{"role": "user", "parts": [{"text": "USER"}]}]
-    gen = body["generationConfig"]
-    assert gen["responseMimeType"] == "application/json" and gen["temperature"] == 0.0
-    assert "additionalProperties" not in json.dumps(gen["responseSchema"])
-    assert gen["responseSchema"]["propertyOrdering"] == ["a"]
-    assert gen["responseSchema"]["properties"]["a"]["items"]["properties"]["x"]["enum"] == ["p"]
+    assert body["model"] == "gpt-4o-mini" and body["max_completion_tokens"] == 256 and body["temperature"] == 0
+    assert body["messages"] == [{"role": "system", "content": "SYS"}, {"role": "user", "content": "USER"}]
+    assert body["response_format"] == {"type": "json_schema",
+                                       "json_schema": {"name": "message_extraction", "strict": True, "schema": SCHEMA}}
 
 
-def test_gemini_skips_thought_parts():
-    body = {"candidates": [{"content": {"parts": [{"text": "thinking...", "thought": True}, {"text": "{}"}]},
-                            "finishReason": "STOP"}]}
-    assert gemini(lambda r: httpx.Response(200, json=body)).call("s", "u", "x", {}).text == "{}"
-
-
-def err(status, gstatus, message):
-    return lambda r: httpx.Response(status, json={"error": {"code": status, "status": gstatus, "message": message}})
-
-
-@pytest.mark.parametrize("handler,code,retryable", [
-    (err(429, "RESOURCE_EXHAUSTED", "Quota exceeded for metric generate_content_free_tier_requests"), "quota_exhausted", False),
-    (err(429, "RESOURCE_EXHAUSTED", "Too many requests"), "rate_limited", False),
-    (err(400, "INVALID_ARGUMENT", "API key not valid. Please pass a valid API key."), "auth_error", False),
-    (err(403, "PERMISSION_DENIED", "Permission denied"), "auth_error", False),
-    (err(404, "NOT_FOUND", "models/gemini-test is not found"), "model_not_found", False),
-    (err(400, "FAILED_PRECONDITION", "User location is not supported for the API use."), "free_tier_unavailable", False),
-    (err(400, "INVALID_ARGUMENT", "Invalid JSON payload"), "bad_request", False),
-    (err(503, "UNAVAILABLE", "overloaded"), "provider_unavailable", True),
+@pytest.mark.parametrize("response,code,retryable", [
+    (error_response(401, "invalid_api_key", "Incorrect API key provided: sk-proj-abcd****wxyz.", "invalid_request_error"),
+     "auth_error", False),
+    (error_response(403, "unsupported_country_region_territory", "Country not supported.", "request_forbidden"),
+     "auth_error", False),
+    (error_response(429, "rate_limit_exceeded", "Rate limit reached for gpt-4o-mini.", "requests"), "rate_limited", False),
+    (error_response(429, "insufficient_quota", "You exceeded your current quota.", "insufficient_quota"),
+     "quota_exhausted", False),
+    (error_response(404, "model_not_found", "The model `gpt-x` does not exist."), "model_not_found", False),
+    (error_response(400, "invalid_json_schema", "Invalid schema for response_format."), "bad_request", False),
+    (error_response(500, None, "The server had an error.", "server_error"), "provider_unavailable", True),
+    (error_response(503, None, "Overloaded.", "server_error"), "provider_unavailable", True),
 ])
-def test_gemini_error_mapping(handler, code, retryable):
+def test_openai_error_mapping(response, code, retryable):
     with pytest.raises(LLMError) as exc:
-        gemini(handler).call("s", "u", "x", {})
+        provider(lambda r: response).call("s", "u", "x", SCHEMA)
     assert exc.value.code == code and exc.value.retryable is retryable
-    assert "test-key-123" not in exc.value.detail
+    assert exc.value.http_status == response.status_code
+    assert "sk-proj-abcd" not in exc.value.detail  # keys are never echoed into logs/UI
 
 
-def test_gemini_timeout_and_connection_errors():
-    def timeout(r):
+def test_openai_timeout_and_connection_errors():
+    def slow(r):
         raise httpx.ReadTimeout("slow", request=r)
 
-    def broken(r):
+    def down(r):
         raise httpx.ConnectError("down", request=r)
 
-    for handler, code in ((timeout, "timeout"), (broken, "connection_error")):
+    for handler, code in ((slow, "timeout"), (down, "connection_error")):
         with pytest.raises(LLMError) as exc:
-            gemini(handler).call("s", "u", "x", {})
+            provider(handler).call("s", "u", "x", SCHEMA)
         assert exc.value.code == code and exc.value.retryable
 
 
 @pytest.mark.parametrize("body,code", [
-    (ok_body(finish="MAX_TOKENS"), "truncated_output"),
-    (ok_body(finish="SAFETY"), "refused"),
-    ({"promptFeedback": {"blockReason": "SAFETY"}}, "refused"),
-    ({"candidates": []}, "empty_response"),
+    ({**chat_completion("{}"), "choices": []}, "empty_response"),
+    (chat_completion('{"a": ', finish_reason="length"), "truncated_output"),
+    (chat_completion("", finish_reason="content_filter"), "refused"),
+    (chat_completion(None, refusal="I can't help with that."), "refused"),
 ])
-def test_gemini_unusable_responses(body, code):
+def test_openai_unusable_responses(body, code):
     with pytest.raises(LLMError) as exc:
-        gemini(lambda r: httpx.Response(200, json=body)).call("s", "u", "x", {})
+        provider(lambda r: httpx.Response(200, json=body)).call("s", "u", "x", SCHEMA)
     assert exc.value.code == code
 
 
-def test_gemini_requires_key():
-    with pytest.raises(LLMConfigError):
-        GeminiProvider(api_key="", model="m", timeout=1, max_output_tokens=10)
+def test_openai_invalid_json_content_is_rejected_by_client():
+    c = LLMClient(provider(lambda r: httpx.Response(200, json=chat_completion("not json"))), guard=NullGuard())
+    with pytest.raises(LLMError) as exc:
+        c.complete_json("s", "u", "x", SCHEMA)
+    assert exc.value.code == "invalid_json"
 
 
-# ---------------- OpenAI provider (kept for future use; never called for real) ----------------
-class FakeCompletions:
-    def __init__(self, outcome):
-        self.outcome = outcome
-        self.kwargs = None
-
-    def create(self, **kwargs):
-        self.kwargs = kwargs
-        if isinstance(self.outcome, Exception):
-            raise self.outcome
-        return self.outcome
-
-
-def openai_provider(outcome):
-    p = OpenAIProvider(api_key="sk-test", model="gpt-test", timeout=5, max_output_tokens=100)
-    fake = FakeCompletions(outcome)
-    p._client = type("C", (), {"chat": type("Ch", (), {"completions": fake})()})()
-    return p, fake
-
-
-def completion(content='{"ok": true}', finish="stop", refusal=None):
-    msg = type("M", (), {"content": content, "refusal": refusal})()
-    choice = type("Ch", (), {"message": msg, "finish_reason": finish})()
-    usage = type("U", (), {"prompt_tokens": 42, "completion_tokens": 7, "total_tokens": 49})()
-    return type("R", (), {"choices": [choice], "usage": usage})()
-
-
-def test_openai_provider_sends_strict_schema():
-    p, fake = openai_provider(completion())
-    reply = p.call("sys", "user", "message_extraction", {"type": "object"})
-    assert json.loads(reply.text) == {"ok": True} and reply.total_tokens == 49
-    assert fake.kwargs["response_format"]["json_schema"]["strict"] is True
-
-
-@pytest.mark.parametrize("exc,code,retryable", [
-    (openai.APITimeoutError(request=REQ), "timeout", True),
-    (openai.RateLimitError("slow down", response=httpx.Response(429, request=REQ), body=None), "rate_limited", False),
-    (openai.AuthenticationError("bad key sk-secret", response=httpx.Response(401, request=REQ), body=None), "auth_error", False),
-])
-def test_openai_errors_are_mapped(exc, code, retryable):
-    p, _ = openai_provider(exc)
-    with pytest.raises(LLMError) as err_info:
-        p.call("s", "u", "x", {})
-    assert err_info.value.code == code and err_info.value.retryable is retryable
-    assert "sk-secret" not in err_info.value.detail
+def test_openai_requires_key():
+    with pytest.raises(LLMConfigError, match="OPENAI_API_KEY"):
+        OpenAIProvider(api_key="", model="m", timeout=1, max_output_tokens=10)
 
 
 def test_mock_provider_responder_can_simulate_failure():

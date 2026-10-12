@@ -143,14 +143,11 @@ REST_FRAMEWORK = {
 }
 
 # ---- LLM integration (see feedback/ai) ----
-# Providers: "mock" (deterministic test double), "gemini" (live, budget-guarded),
-# "openai" (kept for future use; refused unless LLM_OPENAI_ENABLED=true is set with authorisation).
+# Providers: "openai" (live GPT model, budget-guarded) and "mock" (deterministic keyword test double,
+# allowed only in the clearly labelled demo mode). Imported historical results are stored data only.
+_PAID_DATA_CLASSES = [c.strip() for c in env("LLM_PAID_ALLOWED_DATA_CLASSES", "public,internal").split(",") if c.strip()]
 LLM = {
-    "PROVIDER": env("LLM_PROVIDER", "mock").strip().lower(),
-    "GEMINI_API_KEY": env("GEMINI_API_KEY", ""),
-    "GEMINI_MODEL": env("GEMINI_MODEL", "gemini-3.5-flash-lite"),
-    "GEMINI_BASE_URL": env("GEMINI_BASE_URL", "") or None,
-    "OPENAI_ENABLED": env_bool("LLM_OPENAI_ENABLED", False),
+    "PROVIDER": env("LLM_PROVIDER", "openai").strip().lower(),
     "OPENAI_API_KEY": env("OPENAI_API_KEY", ""),
     "OPENAI_MODEL": env("OPENAI_MODEL", "gpt-4o-mini"),
     "OPENAI_BASE_URL": env("OPENAI_BASE_URL", "") or None,
@@ -167,25 +164,15 @@ LLM = {
     "REAL_MAX_PER_REQUEST": env_int("LLM_REAL_MAX_PER_REQUEST", 1),
     # ---- Budget v2 (configurable ceilings; see services/llm_budget.py) ----
     "LIFETIME_REQUEST_CEILING": env_int("LLM_LIFETIME_REQUEST_CEILING", 20),
-    "MONTHLY_COST_CEILING_USD": env("LLM_MONTHLY_COST_CEILING_USD", "0"),
+    "MONTHLY_COST_CEILING_USD": env("LLM_MONTHLY_COST_CEILING_USD", "1.00"),
     "MAX_INPUT_TOKENS_PER_REQUEST": env_int("LLM_MAX_INPUT_TOKENS_PER_REQUEST", 4000),
     "RATE_LIMIT_RPM": env_int("LLM_RATE_LIMIT_RPM", 10),
-    # Provider tier and prices. Free tier = $0. A paid tier REQUIRES explicit prices (USD per 1M tokens);
-    # without them real requests are refused rather than guessed.
-    "GEMINI_TIER": env("GEMINI_TIER", "free").strip().lower(),
-    "GEMINI_PRICE_INPUT_PER_MTOK": env("GEMINI_PRICE_INPUT_PER_MTOK", ""),
-    "GEMINI_PRICE_OUTPUT_PER_MTOK": env("GEMINI_PRICE_OUTPUT_PER_MTOK", ""),
-    "OPENAI_PRICE_INPUT_PER_MTOK": env("OPENAI_PRICE_INPUT_PER_MTOK", ""),
-    "OPENAI_PRICE_OUTPUT_PER_MTOK": env("OPENAI_PRICE_OUTPUT_PER_MTOK", ""),
+    # USD per 1M tokens for OPENAI_MODEL (defaults: gpt-4o-mini list prices). They must match the model;
+    # empty values mean "unknown" and real requests are then refused rather than guessed.
+    "OPENAI_PRICE_INPUT_PER_MTOK": env("OPENAI_PRICE_INPUT_PER_MTOK", "0.15"),
+    "OPENAI_PRICE_OUTPUT_PER_MTOK": env("OPENAI_PRICE_OUTPUT_PER_MTOK", "0.60"),
     # ---- Privacy gate: which data classifications each provider tier may receive ----
-    # Gemini free tier may use submitted content to improve Google products -> public data only.
-    "ALLOWED_DATA_CLASSES": {
-        "gemini:free": ["public"],
-        "gemini:paid": [c.strip() for c in env("LLM_PAID_ALLOWED_DATA_CLASSES", "public,internal").split(",") if c.strip()],
-        "openai:paid": [c.strip() for c in env("LLM_PAID_ALLOWED_DATA_CLASSES", "public,internal").split(",") if c.strip()],
-    },
-    # ---- Embeddings (optional, for grouping similarity) ----
-    "GEMINI_EMBEDDING_MODEL": env("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001"),
+    "ALLOWED_DATA_CLASSES": {"openai:paid": _PAID_DATA_CLASSES},
 }
 
 # real = only real providers may analyse (mock refused); demo = mock allowed, everything labelled MOCK.
@@ -193,9 +180,9 @@ ECHOVANCE_AI_MODE = env("ECHOVANCE_AI_MODE", "real").strip().lower()
 if ECHOVANCE_AI_MODE not in {"real", "demo"}:
     raise ImproperlyConfigured("ECHOVANCE_AI_MODE must be 'real' or 'demo'")
 
-# Hybrid grouping: similarity method ("tfidf" = local, zero cost; "gemini_embedding" = budgeted API)
+# Hybrid grouping: similarity suggestions are computed locally (TF-IDF; zero cost, no network)
 GROUPING = {
-    "SIMILARITY": env("GROUPING_SIMILARITY", "tfidf").strip().lower(),
+    "SIMILARITY": "tfidf",
     "MIN_SIMILARITY": float(env("GROUPING_MIN_SIMILARITY", "0.30")),
     "MARGIN": float(env("GROUPING_MARGIN", "0.10")),
     "MIN_ISSUE_MENTIONS": env_int("GROUPING_MIN_ISSUE_MENTIONS", 3),
