@@ -6,13 +6,15 @@ Echovance turns historical customer-support conversations into operational decis
 weekly trends → deterministic alerts → AI-proposed actions → manager approval → task tracking**
 
 It is a decision-support tool, not a chatbot. It was built on the public *Customer Support on Twitter*
-dataset (SpotifyCares, Oct–Nov 2017). Final project for the Kernel CAIE Level 2 AI Engineering program.
+dataset (SpotifyCares, Oct–Nov 2017); the privacy-reviewed development subset and the 13 genuine Gemini
+results are included (`data/spotifycares_public/`, CC BY-NC-SA 4.0). Final project for the Kernel CAIE
+Level 2 AI Engineering program.
 
 | | |
 |---|---|
 | Stack | Python 3.12, Django 5.1, Django REST Framework, PostgreSQL 16, server-rendered HTML/CSS + minimal JS |
 | AI | Google Gemini (`gemini-3.5-flash-lite`) via REST with structured output, behind a persisted request/cost budget and a privacy gate. A clearly labelled keyword **mock** runs the whole workflow offline for demos and tests. OpenAI integration is present but **disabled**. |
-| Tests | 255 pytest tests (PostgreSQL, no network), incl. 5 real-browser tests and 43 real-AI-path tests with mocked HTTP |
+| Tests | 264 pytest tests (PostgreSQL, no network), incl. 5 real-browser tests and 43 real-AI-path tests with mocked HTTP |
 
 **Two AI modes — never mixed.** *Demo mode* (the `.env.example` default) uses the deterministic keyword
 mock: no API key, no network, no cost. Its results are labelled `MOCK` everywhere and live in a separate
@@ -34,7 +36,7 @@ copy .env.example .env
 ```
 
 Edit `.env`: set `DJANGO_SECRET_KEY` and `DB_PASSWORD`. Keep `ECHOVANCE_AI_MODE=demo` and `LLM_PROVIDER=mock`
-for the offline demo.
+to work offline (no API key).
 
 ### Database (fresh PostgreSQL database)
 
@@ -61,35 +63,78 @@ your own; existing users are never changed). Roles: **Managers** approve/assign 
 authorise jobs (+ everything analysts can do) · **Analysts** import, analyse, detect, correct, label ·
 **Viewers** read only (an assignee may still start/complete their own actions).
 
-## Demo walkthrough (mock AI, no API key)
+## Real-data walkthrough (SpotifyCares, no API key needed)
 
-`data/sample/synthetic_demo_messages.csv` is a small **invented** dataset in the original import format:
-440 customer conversations over 4 weeks (2–29 Oct 2017) plus 220 brand replies. It contains stable
-baseline issues, a surge of duplicate-charge complaints and a new service-outage issue in the last week.
+`data/spotifycares_public/` holds the real data used during development, prepared for redistribution:
+4,000 SpotifyCares customer conversations (Oct–Nov 2017) + 4,000 brand replies, with URLs, handles, names
+and number-like identifiers redacted, plus the **13 genuine Gemini analyses** made during development.
+Source, licence (CC BY-NC-SA 4.0, non-commercial), changes and residual privacy risk:
+[`data/spotifycares_public/README.md`](data/spotifycares_public/README.md).
+
+**1. Import the data and the genuine Gemini results** (into the fresh database from the quick start):
 
 ```powershell
-.venv\Scripts\python manage.py import_messages data\sample\synthetic_demo_messages.csv --data-classification public
-.venv\Scripts\python manage.py run_analysis --limit 500    # Provider: MOCK (deterministic keyword test double, not real AI)
+.venv\Scripts\python manage.py import_messages data\spotifycares_public\spotifycares_subset.csv --data-classification public
+#   -> total=8000 accepted=8000 customer_roots=4000 agent_replies=4000   (re-running it only finds duplicates)
+.venv\Scripts\python manage.py import_llm_snapshot
+#   -> 13 genuine analyses imported; no API request made, the AI budget of this database is not used
 ```
 
-(Or upload the CSV on **Imports** and use **Messages → Analyse** in batches of 25.) Then, logged in as
-`manager`:
+**2. Inspect the real AI results offline** (log in as `manager`; the dashboard defaults to *Real AI data*):
 
-1. **Dashboard** → switch to **Mock demo data** (the default *Real AI data* scope stays empty in demo mode).
-2. **Alerts** → *Detect trends* with scope **Mock demo analyses** → one `surge` alert
-   (`billing_subscription.unexpected_charge`, 15 vs. baseline 3) and one `emerging` alert
-   (`playback_performance.service_outage`).
-3. Open the surge alert: evidence messages with highlighted quotes, weekly chart, thresholds → *Acknowledge*.
-4. *Suggest action with AI* → a `[MOCK]` template proposal with status **Proposed** (never auto-approved),
-   or create a manual action.
-5. On the action: *Approve* → *Assign* to `agent1` → log in as `agent1` → *Start* → *Complete* (the audit
-   trail records every step; completing an action does not resolve the issue).
+* **Dashboard**: provenance shows 13 conversations analysed by Gemini and 3,987 unprocessed; 9 issues.
+* **Messages** → filter *Status: completed* → open one: Gemini's analysis (provider `gemini`,
+  model `gemini-3.5-flash-lite`, prompt `extract-v1`, tokens, latency) with the quoted evidence highlighted in
+  the message. The originating run says "Imported snapshot of genuine gemini results" (`GET /api/analyses/`).
+* **Issues** (real scope): the issues found by Gemini, each linked to its evidence.
+* **Alerts** (real scope): *Detect trends* reports **insufficient data** — 13 analyses are far below the
+  100 per week the rules require. This is the honest result, not a failure.
 
-The same steps are available through the REST API (below), e.g. `POST /api/alerts/detect/ {"scope": "demo"}`.
+**3. Optional — run the full pipeline on the real texts offline with the mock** (results labelled `MOCK`,
+kept in the separate demo scope; the 13 Gemini results are not touched):
+
+```powershell
+.venv\Scripts\python manage.py run_analysis --limit 5000   # Provider: MOCK ... 3,987 conversations
+```
+
+Then **Dashboard → Mock demo data**, **Alerts → Detect trends → scope Mock demo analyses** (5 weekly
+windows, 20 `surge` alerts on the real conversations, e.g. `account_access.login_failure`: 35 vs. a
+baseline mean of 19 in the week of 24 Nov), open an alert, *Acknowledge*, *Suggest action with AI*
+(a `[MOCK]` template proposal, status **Proposed**), *Approve* → *Assign* to `agent1` → log in as `agent1`
+→ *Start* → *Complete*. The audit trail records every step; completing an action does not resolve the issue.
+
+**4. Optional — blind labelling of the held-out evaluation sample:**
+
+```powershell
+New-Item -ItemType Directory -Force data\eval | Out-Null
+Copy-Item data\spotifycares_public\eval\*.csv data\eval\
+```
+
+**Labelling** (`/evaluation/label/`) then serves the 200 held-out messages without model output, and
+`manage.py evaluate_ai` reports metrics once enough independent labels and real predictions exist.
+
+### What works offline vs. what needs an API key
+
+| Offline (no key, no cost) | Needs `GEMINI_API_KEY` + an owner-authorised budget |
+|---|---|
+| import the real subset; inspect the 13 genuine Gemini results, their evidence, issues and usage | analysing any further conversation with Gemini (UI *Analyse*, jobs, `promote_mock`) |
+| full pipeline with the labelled mock: grouping, trends, alerts, `[MOCK]` action proposals, approval workflow | real (non-mock) AI action proposals |
+| human corrections, blind labelling, REST API, tests, benchmark | real-scope trend alerts (need ≥ 100 real analyses per week) and AI quality metrics |
+
+The REST API offers the same steps, e.g. `POST /api/alerts/detect/ {"scope": "demo"}`;
 `manage.py detect_trends` evaluates the **real** scope only.
 
+## Optional: synthetic offline fixture
+
+`data/sample/synthetic_demo_messages.csv` is a small **invented** dataset (not real customers) in the same
+format, for quick offline tests or demos: 440 conversations over 4 weeks (2–29 Oct 2017) plus 220 brand
+replies, designed so that one `surge` alert (`billing_subscription.unexpected_charge`, 15 vs. baseline 3)
+and one `emerging` alert (`playback_performance.service_outage`) appear. Use it in a separate, empty
+database (import it with `import_messages`, then `run_analysis --limit 500` and detect in the demo scope).
+
 A live HTTP smoke test exercises login, permissions, pages and the action workflow against a running
-server (it writes demo records, so use it on a demo database):
+server. It writes records (an action, an alert review) and needs at least one open alert, so run it on a
+review database after step 3 of the real-data walkthrough (or with the fixture):
 `.venv\Scripts\python scripts\smoke_test.py --base http://127.0.0.1:8000 --password <demo password>`.
 
 ## Real Gemini integration
@@ -112,7 +157,9 @@ worker: `.venv\Scripts\python manage.py process_jobs --loop` (safe to stop and r
 *Analyse* button sends at most `LLM_REAL_MAX_PER_REQUEST` (default 1) message per click;
 `run_analysis` refuses real providers without `--allow-real`. Afterwards run
 `manage.py detect_trends --all` (real scope) and `manage.py llm_budget --log` (every real request with
-status, tokens, latency, cost).
+status, tokens, latency, cost). On the real subset, a *new conversations* job analyses still-unprocessed
+messages and a *re-analyse mock-analysed* job replaces mock results; new analyses use the current prompt
+(`extract-v2`), while the 13 imported `extract-v1` results stay as they are.
 
 Guarantees: every request is logged *before* it is sent and admitted only within the global budget, the
 job's limits, token/cost/rate limits and the privacy gate; quota/rate-limit/auth errors halt live calls
@@ -122,7 +169,8 @@ inputs reuse an earlier validated result. Before sending, names in explicit cont
 and card-like numbers, account/order codes, IPs, street addresses, secrets, URLs and @handles are redacted.
 
 **Project status (honest):** during development 13 real Gemini requests were made (3 verification + a
-10-message pilot). AI quality metrics (precision/recall/F1) are **not yet measured**: they require
+10-message pilot); their results are the snapshot in `data/spotifycares_public/gemini_snapshot.json`. AI
+quality metrics (precision/recall/F1) are **not yet measured**: they require
 independent human labels (see [Evaluation](#evaluation)) and an authorised real batch.
 
 ## Environment variables (`.env`)
@@ -162,7 +210,7 @@ independent human labels (see [Evaluation](#evaluation)) and an authorised real 
 ```
 
 Tests never call a real provider, whatever `.env` says: they force the mock or mock the HTTP transport,
-and all fixtures are synthetic.
+and all fixtures are synthetic (one test additionally checks that the shipped public data and Gemini snapshot import consistently).
 
 | Test module | Covers |
 |---|---|
@@ -177,18 +225,19 @@ and all fixtures are synthetic.
 | `test_browser_actions.py` | real Edge clicks: approve, reject (reason required), edit, assignee start/complete, viewer has no buttons |
 | `test_e2e.py` | import ×2 → analyse → evidence traceability → detect → review → AI proposal → approve → assign → complete |
 | `test_evaluation.py` | metric arithmetic, confusion matrix, pairwise grouping, mock refusal |
+| `test_snapshots.py` | genuine-LLM snapshot import: validated, attributed, idempotent, supersedes mock, rejects mock/human or non-matching evidence, never uses the AI budget; shipped data consistency |
 
 Performance (all writes are rolled back; output JSON is written to `docs/results/`, which is git-ignored):
-`.venv\Scripts\python manage.py benchmark --subset data\sample\synthetic_demo_messages.csv --analyse 200`
+`.venv\Scripts\python manage.py benchmark --subset data\spotifycares_public\spotifycares_subset.csv`
 
 ## Evaluation
 
 `manage.py evaluate_ai` compares **real** LLM predictions (never the mock) with independent human labels
 and reports precision/recall/F1, confusion matrices and Cohen's κ; without labels it reports `pending`.
 Labels are entered on **Labelling** (`/evaluation/label/`, analysts and managers), which shows one
-held-out message at a time **without any model output**; managers may add an adjudication label. The
-held-out sample (`data/eval/eval_sample.csv`) is produced by `scripts/prepare_dataset.py` from the real
-dataset and is not shipped, so the page is empty on a demo database.
+held-out message at a time **without any model output**; managers may add an adjudication label. It reads
+the held-out sample from `data/eval/eval_sample.csv`; copy the published splits there first (step 4 of the
+real-data walkthrough), otherwise the page is empty. No human labels exist yet.
 
 Labelling rules: `message_type` is `complaint` (something does not work, an unwanted behaviour or charge,
 dissatisfaction), `feature_request` (asks for something new without a malfunction), `question` (neutral
@@ -252,33 +301,41 @@ feedback/
   models/               imports, messages, analysis, issues, alerts, actions, llm_usage, evaluation
   migrations/           schema + role groups + data backfills (0001–0009)
   services/             imports, analysis, jobs, grouping, trends, actions, review, corrections,
-                        llm_budget, privacy_gate, split_guard, stats, evaluation
+                        llm_budget, privacy_gate, split_guard, stats, evaluation, snapshots
   ai/                   client (Gemini / OpenAI / Mock), extraction, actions, privacy (redaction),
                         similarity (TF-IDF, Gemini embeddings), mock_rules
   api/                  DRF serializers, viewsets, routes
   web/                  views, forms, urls, context processor
   templates/feedback/   server-rendered pages + partials
   static/feedback/      app.css, app.js
-  management/commands/  import_messages, run_analysis, create_job, process_jobs, detect_trends, llm_budget,
-                        evaluate_ai, benchmark, seed_demo_users
+  management/commands/  import_messages, import_llm_snapshot, run_analysis, create_job, process_jobs,
+                        detect_trends, llm_budget, evaluate_ai, benchmark, seed_demo_users
   taxonomy.py           single source of truth for categories/subtypes
-scripts/                setup_db (create role/DB), prepare_dataset (real-dataset subset + evaluation splits),
-                        smoke_test (live HTTP checks)
-data/sample/            synthetic_demo_messages.csv (invented demo data; the only data in the repository)
-tests/                  pytest suite (synthetic fixtures only)
+scripts/                setup_db (create role/DB), smoke_test (live HTTP checks), prepare_dataset and
+                        export_public_dataset (author-side: how data/spotifycares_public was produced)
+data/spotifycares_public/  real SpotifyCares subset (redacted), evaluation splits, Gemini snapshot, manifest,
+                        data notice (CC BY-NC-SA 4.0)
+data/sample/            synthetic_demo_messages.csv (invented offline fixture)
+tests/                  pytest suite (synthetic fixtures; one test checks the shipped public data)
 ```
 
-## Using the real dataset (optional)
+## How the published data was produced
 
-The original data is the Kaggle *Customer Support on Twitter* dump (`twcs.csv`, ~516 MB, CC BY-NC-SA 4.0,
-contains personal data) and is **not** in this repository. To reproduce the project subset, place it at
-`data/raw/twcs.csv` and run `.venv\Scripts\python scripts\prepare_dataset.py` (4,000 SpotifyCares thread
-roots + first brand replies, seed 20171001, plus the 50-message development and 200-message evaluation
-splits), then `manage.py import_messages data\processed\spotifycares_subset.csv --data-classification public`.
-Everything under `data/` except `data/sample/` is git-ignored.
+1. `scripts/prepare_dataset.py` selects the subset from the Kaggle dump `twcs.csv` (~516 MB, not in the
+   repository; seed 20171001) into the git-ignored `data/processed/` and `data/eval/`.
+2. `scripts/export_public_dataset.py` redacts it and captures the genuine Gemini results from the development
+   database (read-only) into `data/spotifycares_public/`, refusing to publish any quote that is not found
+   verbatim in the redacted text.
+
+Both need the private inputs, so reviewers do not need to run them; they document exactly what was done.
+Only `data/spotifycares_public/` and `data/sample/` are committed; everything else under `data/` is git-ignored.
 
 ## Data licence & privacy
 
-Stored author ids are hashed; e-mails and phone-like numbers are redacted on import, and URLs, handles and
-other identifiers are additionally masked before any external LLM call. Counts describe answered public
-tweets only, never all customers, and trends never imply causality. Secrets live only in `.env` (git-ignored).
+`data/spotifycares_public/` is an adaptation of "Customer Support on Twitter" (Stuart Axelbrooke, Kaggle)
+under **CC BY-NC-SA 4.0** — non-commercial use, attribution, share-alike; see its
+[data notice](data/spotifycares_public/README.md) for the changes and the residual privacy risk. In the
+application, stored author ids are hashed, e-mails and phone-like numbers are redacted on import, and URLs,
+handles and other identifiers are additionally masked before any external LLM call. Counts describe answered
+public tweets only, never all customers, and trends never imply causality. Secrets live only in `.env`
+(git-ignored).

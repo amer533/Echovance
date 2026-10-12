@@ -1,0 +1,3 @@
+# Data files are stored and checked out byte-for-byte (no line-ending conversion), so checksums in
+# data/spotifycares_public/manifest.json and multi-line CSV fields are identical on every platform.
+data/** -text

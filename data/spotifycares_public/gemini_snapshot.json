@@ -1,0 +1,301 @@
+{
+  "kind": "echovance.llm_analysis_snapshot",
+  "description": "Genuine Google Gemini analyses produced during development of Echovance. Captured from the development database; NOT re-generated, NOT mock output. Evidence and summaries are expressed in the redacted published text.",
+  "provider": "gemini",
+  "model_name": "gemini-3.5-flash-lite",
+  "prompt_version": "extract-v1",
+  "requests_made": 13,
+  "captured_at": "2026-10-12T13:45:50+00:00",
+  "dataset": "data/spotifycares_public/spotifycares_subset.csv",
+  "analyses": [
+    {
+      "tweet_id": 1738344,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "billing_subscription",
+          "subtype": "unexpected_charge",
+          "sentiment": "negative",
+          "summary": "The customer's card was charged despite the student premium signup not completing.",
+          "evidence": "didn’t push through yet my card was still charged"
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T11:49:12+00:00",
+      "attempts": 1,
+      "latency_ms": 4835,
+      "input_tokens": 1083,
+      "output_tokens": 134,
+      "origin": "single verification request"
+    },
+    {
+      "tweet_id": 2079707,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "billing_subscription",
+          "subtype": "student_plan",
+          "sentiment": "negative",
+          "summary": "The customer cannot find the option to extend their student discount on the website.",
+          "evidence": "I want to extend my student discount but I don’t see the option on your website."
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T11:49:23+00:00",
+      "attempts": 1,
+      "latency_ms": 1588,
+      "input_tokens": 1086,
+      "output_tokens": 141,
+      "origin": "single verification request"
+    },
+    {
+      "tweet_id": 2402500,
+      "message_type": "question",
+      "is_complaint": false,
+      "overall_sentiment": "positive",
+      "aspects": [],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T11:49:24+00:00",
+      "attempts": 1,
+      "latency_ms": 940,
+      "input_tokens": 1079,
+      "output_tokens": 57,
+      "origin": "single verification request"
+    },
+    {
+      "tweet_id": 2049040,
+      "message_type": "question",
+      "is_complaint": false,
+      "overall_sentiment": "neutral",
+      "aspects": [],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:45:42+00:00",
+      "attempts": 1,
+      "latency_ms": 2082,
+      "input_tokens": 1067,
+      "output_tokens": 57,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 318483,
+      "message_type": "feature_request",
+      "is_complaint": false,
+      "overall_sentiment": "neutral",
+      "aspects": [
+        {
+          "category": "feature_request",
+          "subtype": "new_feature",
+          "sentiment": "neutral",
+          "summary": "The customer requests the return of messaging between followers.",
+          "evidence": "it’s time to bring back exchanging messages between followers."
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:45:48+00:00",
+      "attempts": 1,
+      "latency_ms": 5298,
+      "input_tokens": 1072,
+      "output_tokens": 130,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 1784780,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "content_catalog",
+          "subtype": "missing_content",
+          "sentiment": "negative",
+          "summary": "The customer asks where to see reasons for album removals and states they can no longer rely on the service.",
+          "evidence": "is there anywhere we can see reasons for why albums are removed? Can't rely on your service anymore."
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:45:53+00:00",
+      "attempts": 1,
+      "latency_ms": 5769,
+      "input_tokens": 1081,
+      "output_tokens": 150,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 1807489,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "content_catalog",
+          "subtype": "missing_content",
+          "sentiment": "negative",
+          "summary": "The customer is annoyed that certain songs are unavailable on the service.",
+          "evidence": "So annoying when some songs aren't on @user."
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:00+00:00",
+      "attempts": 1,
+      "latency_ms": 6163,
+      "input_tokens": 1068,
+      "output_tokens": 132,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 1472886,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "playback_performance",
+          "subtype": "service_outage",
+          "sentiment": "negative",
+          "summary": "The customer asks if the website is down.",
+          "evidence": "is your website down?"
+        },
+        {
+          "category": "billing_subscription",
+          "subtype": "payment_failure",
+          "sentiment": "negative",
+          "summary": "The customer is unable to update their card information.",
+          "evidence": "It won't let me update my card info"
+        },
+        {
+          "category": "billing_subscription",
+          "subtype": "family_plan",
+          "sentiment": "negative",
+          "summary": "The customer cannot add their son to the account.",
+          "evidence": "or add my son."
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:05+00:00",
+      "attempts": 1,
+      "latency_ms": 5925,
+      "input_tokens": 1078,
+      "output_tokens": 250,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 2030999,
+      "message_type": "question",
+      "is_complaint": false,
+      "overall_sentiment": "neutral",
+      "aspects": [],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:11+00:00",
+      "attempts": 1,
+      "latency_ms": 5649,
+      "input_tokens": 1084,
+      "output_tokens": 57,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 2609424,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "content_catalog",
+          "subtype": "missing_content",
+          "sentiment": "negative",
+          "summary": "The customer is frustrated that the album Perfect Velvet is not available on Spotify.",
+          "evidence": "when is perfect velvet going to be available on spotify? im frustrated"
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:18+00:00",
+      "attempts": 1,
+      "latency_ms": 6483,
+      "input_tokens": 1069,
+      "output_tokens": 136,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 171131,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "application_errors",
+          "subtype": "ui_change",
+          "sentiment": "negative",
+          "summary": "The customer cannot find the equalizer settings on their phone.",
+          "evidence": "I can't find my eq settings on my phone!"
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:23+00:00",
+      "attempts": 1,
+      "latency_ms": 5799,
+      "input_tokens": 1075,
+      "output_tokens": 130,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 2916605,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "playback_performance",
+          "subtype": "service_outage",
+          "sentiment": "negative",
+          "summary": "The customer states that the web player is down and will not play any music.",
+          "evidence": "I think your web player is down. My web player won't play any music."
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:29+00:00",
+      "attempts": 1,
+      "latency_ms": 5937,
+      "input_tokens": 1076,
+      "output_tokens": 142,
+      "origin": "analysis job #2"
+    },
+    {
+      "tweet_id": 2950135,
+      "message_type": "complaint",
+      "is_complaint": true,
+      "overall_sentiment": "negative",
+      "aspects": [
+        {
+          "category": "application_errors",
+          "subtype": "library_data_loss",
+          "sentiment": "negative",
+          "summary": "The customer reports that random songs are disappearing from their playlists.",
+          "evidence": "random songs disappearing from playlists"
+        }
+      ],
+      "review_reasons": [],
+      "status": "succeeded",
+      "analysed_at": "2026-10-11T15:46:36+00:00",
+      "attempts": 1,
+      "latency_ms": 6184,
+      "input_tokens": 1075,
+      "output_tokens": 127,
+      "origin": "analysis job #2"
+    }
+  ]
+}
