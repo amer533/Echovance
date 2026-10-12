@@ -1,0 +1,23 @@
+{% extends "feedback/base.html" %}
+{% block title %}Actions{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Actions</h1><p class="secondary">Every action starts as <strong>Proposed</strong> — including AI suggestions — and needs a manager's approval before anyone works on it.</p></div></div>
+<section class="card">
+  <nav class="tabs" aria-label="Action status">
+    <a href="?" {% if not status and not mine %}aria-current="true"{% endif %}>All</a>
+    {% for v, l in statuses %}<a href="?status={{ v }}" {% if status == v %}aria-current="true"{% endif %}>{{ l }}</a>{% endfor %}
+    <a href="?mine=1" {% if mine %}aria-current="true"{% endif %}>Assigned to me</a>
+  </nav>
+  {% if page.object_list %}
+  <div class="table-wrap"><table><thead><tr><th>Action</th><th>Issue</th><th>Origin</th><th>Status</th><th>Assignee</th><th>Due</th><th>Updated</th></tr></thead><tbody>
+  {% for a in page %}
+    <tr><td><a href="{% url 'action-detail' a.pk %}">{{ a.title }}</a></td><td class="small"><a href="{% url 'issue-detail' a.issue_id %}">{{ a.issue.title|truncatechars:50 }}</a></td>
+      <td>{% if a.origin == 'ai' %}<span class="badge badge-info">AI</span>{% if a.ai_is_mock %} <span class="badge badge-mock">MOCK</span>{% endif %}{% else %}<span class="badge">Manual</span>{% endif %}</td>
+      <td><span class="badge {% if a.status == 'proposed' %}badge-warn{% elif a.status == 'completed' %}badge-good{% elif a.status == 'rejected' %}badge-bad{% else %}badge-info{% endif %}">{{ a.get_status_display }}</span></td>
+      <td>{{ a.assignee.username|default:"—" }}</td><td class="small nowrap">{{ a.due_date|date:"j M Y"|default:"—" }}</td><td class="small nowrap">{{ a.updated_at|date:"j M Y H:i" }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% include "feedback/partials/pagination.html" %}
+  {% else %}<p class="empty">No actions here. Create one from an <a href="{% url 'issues' %}">issue</a> or <a href="{% url 'alerts' %}">alert</a>.</p>{% endif %}
+</section>
+{% endblock %}

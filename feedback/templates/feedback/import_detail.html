@@ -1,0 +1,25 @@
+{% extends "feedback/base.html" %}
+{% load humanize %}
+{% block title %}Import #{{ batch.pk }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="small"><a href="{% url 'imports' %}">← Imports</a></p><h1>Import #{{ batch.pk }} · {{ batch.original_filename }}</h1></div>
+  <span class="badge {% if batch.status == 'completed' %}badge-good{% elif batch.status == 'failed' %}badge-bad{% else %}badge-warn{% endif %}">{{ batch.get_status_display }}</span></div>
+{% if batch.failure_reason %}<div class="banner banner-error" role="alert">{{ batch.failure_reason }}</div>{% endif %}
+<section class="tiles">
+  <div class="tile"><div class="label">Data rows</div><div class="value">{{ batch.total_rows|intcomma }}</div></div>
+  <a class="tile" href="{% url 'messages' %}?role=all&amp;batch={{ batch.pk }}"><div class="label">Accepted (new)</div><div class="value">{{ batch.accepted_count|intcomma }}</div><div class="sub">{{ batch.customer_root_count|intcomma }} customer conversations · {{ batch.agent_count|intcomma }} agent replies</div></a>
+  <div class="tile"><div class="label">Duplicates skipped</div><div class="value">{{ batch.duplicate_count|intcomma }}</div><div class="sub">already stored or repeated in file</div></div>
+  <div class="tile"><div class="label">Rejected rows</div><div class="value">{{ batch.rejected_count|intcomma }}</div></div>
+</section>
+<div class="grid grid-2">
+<section class="card"><h2>Details</h2><dl class="kv">
+  <dt>Brand account</dt><dd>{{ batch.brand_account }}</dd><dt>Source</dt><dd>{{ batch.get_source_display }}</dd>
+  <dt>SHA-256</dt><dd class="mono small">{{ batch.file_sha256|default:"—" }}</dd><dt>Size</dt><dd>{{ batch.file_size_bytes|filesizeformat }}</dd>
+  <dt>Started</dt><dd>{{ batch.started_at|date:"j M Y H:i:s" }}</dd><dt>Finished</dt><dd>{{ batch.finished_at|date:"j M Y H:i:s"|default:"—" }}</dd>
+  <dt>By</dt><dd>{{ batch.created_by.username|default:"management command" }}</dd></dl></section>
+<section class="card"><h2>Row errors{% if batch.errors|length >= 200 %} (first 200){% endif %}</h2>
+  {% if batch.errors %}<div class="table-wrap"><table><thead><tr><th class="num">CSV line</th><th>Field</th><th>Code</th></tr></thead><tbody>
+  {% for e in batch.errors %}<tr><td class="num">{{ e.row }}</td><td><code>{{ e.field }}</code></td><td>{{ e.code }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<p class="empty">No row errors.</p>{% endif %}
+</section></div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Echovance{% endblock %} · Echovance</title>
+  <link rel="stylesheet" href="{% static 'feedback/app.css' %}">
+  <script src="{% static 'feedback/app.js' %}?v=2" defer></script>
+</head>
+<body>
+{% if user.is_authenticated %}
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark" aria-hidden="true"></span>Echovance</a>
+    {% with p=request.resolver_match.url_name %}
+    <nav class="nav" aria-label="Main">
+      <a href="{% url 'dashboard' %}" {% if p == 'dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
+      <a href="{% url 'imports' %}" {% if p == 'imports' or p == 'import-detail' %}aria-current="page"{% endif %}>Imports</a>
+      <a href="{% url 'messages' %}" {% if p == 'messages' or p == 'message-detail' %}aria-current="page"{% endif %}>Messages</a>
+      <a href="{% url 'issues' %}" {% if p == 'issues' or p == 'issue-detail' %}aria-current="page"{% endif %}>Issues</a>
+      <a href="{% url 'alerts' %}" {% if p == 'alerts' or p == 'alert-detail' %}aria-current="page"{% endif %}>Alerts</a>
+      <a href="{% url 'actions' %}" {% if p == 'actions' or p == 'action-detail' %}aria-current="page"{% endif %}>Actions</a>
+      <a href="{% url 'jobs' %}" {% if p == 'jobs' or p == 'job-detail' %}aria-current="page"{% endif %}>AI jobs</a>
+      <a href="{% url 'grouping' %}" {% if p == 'grouping' %}aria-current="page"{% endif %}>Grouping</a>
+      {% if can_run_pipeline %}<a href="{% url 'label' %}" {% if p == 'label' %}aria-current="page"{% endif %}>Labelling</a>{% endif %}
+    </nav>
+    {% endwith %}
+    <div class="userbox">
+      <span>{{ user.username }}{% if is_manager %} · <span class="badge badge-info">Manager</span>{% endif %}</span>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn" type="submit">Sign out</button></form>
+    </div>
+  </div>
+</header>
+{% endif %}
+<main id="content">
+  {% if user.is_authenticated and llm_config.mock_refused %}
+    <div class="banner banner-error" role="alert"><strong>Real AI mode — no real provider configured.</strong> LLM_PROVIDER=mock is refused while ECHOVANCE_AI_MODE=real, so no analysis can run and nothing is fabricated. Configure Gemini, or switch to the clearly labelled demo mode.</div>
+  {% elif user.is_authenticated and llm_config.is_mock %}
+    <div class="banner banner-warn" role="status"><strong>Demo mode (mock AI).</strong> Analyses and suggestions come from a deterministic keyword test double, not a real language model. Results are labelled <span class="badge badge-mock">MOCK</span>, live in the <em>demo</em> data scope and are not AI evaluation evidence.</div>
+  {% elif user.is_authenticated and llm_config.disabled %}
+    <div class="banner banner-error" role="alert"><strong>Provider disabled.</strong> OpenAI is disabled to protect a shared quota; AI requests will be refused. Use LLM_PROVIDER=mock or gemini.</div>
+  {% elif user.is_authenticated and not llm_config.credentials_present %}
+    <div class="banner banner-error" role="alert"><strong>LLM not configured.</strong> LLM_PROVIDER={{ llm_config.provider }} but its API key is empty; AI requests will be refused (no fallback to another provider).</div>
+  {% elif user.is_authenticated and llm_budget %}
+    <div class="banner {% if llm_budget.halted or not llm_budget.remaining %}banner-error{% else %}banner-info{% endif %}" role="status"><strong>Live AI: {{ llm_config.provider }} / {{ llm_config.model }}.</strong>
+      Real requests used {{ llm_budget.used }} of {{ llm_budget.authorized }} authorised (configured lifetime ceiling {{ llm_budget.lifetime_ceiling }}); {{ llm_budget.remaining }} remaining{% if llm_budget.failed %}, {{ llm_budget.failed }} failed{% endif %}.
+      {% if llm_budget.halted %}<br><strong>Halted:</strong> {{ llm_budget.halt_reason }}{% endif %}</div>
+  {% endif %}
+  {% for m in messages %}
+    <div class="banner banner-{% if m.tags == 'error' %}error{% elif m.tags == 'success' %}success{% elif m.tags == 'warning' %}warn{% else %}info{% endif %}" role="status">{{ m }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

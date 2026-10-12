@@ -1,0 +1,44 @@
+{% extends "feedback/base.html" %}
+{% load humanize %}
+{% block title %}Imports{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Imports</h1><p class="secondary">Upload historical support conversations. Re-importing the same rows is safe: existing tweet IDs are counted as duplicates and never stored twice.</p></div></div>
+<div class="grid grid-2">
+  <section class="card" aria-labelledby="up-h">
+    <h2 id="up-h">Upload CSV</h2>
+    {% if can_run_pipeline %}
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      {% for field in form %}
+      <div class="field">{{ field.label_tag }}{{ field }}{% if field.help_text %}<span class="help">{{ field.help_text }}</span>{% endif %}{{ field.errors }}</div>
+      {% endfor %}
+      <button class="btn btn-primary" type="submit" data-busy-text="Importing…">Import</button>
+    </form>
+    {% else %}<p class="muted">Your role cannot import data. Ask a manager or analyst.</p>{% endif %}
+  </section>
+  <section class="card" aria-labelledby="rules-h">
+    <h2 id="rules-h">Validation rules</h2>
+    <ul class="small secondary">
+      <li>Required columns: <code>tweet_id, author_id, inbound, created_at, text</code>; optional <code>response_tweet_id, in_response_to_tweet_id</code>.</li>
+      <li>Dates must include a timezone (Twitter format or ISO&nbsp;8601). Future dates are rejected.</li>
+      <li>Outbound rows must come from the brand account; they are stored as agent replies and never analysed as complaints.</li>
+      <li>Only customer thread roots (no <code>in_response_to_tweet_id</code>) become complaint candidates.</li>
+      <li>E-mail addresses and long digit sequences are redacted before storage. Row errors list row number, field and code only.</li>
+      <li>Limits: {{ max_upload|filesizeformat }} and {{ max_rows|intcomma }} rows per file. Larger raw dumps go through <code>scripts/prepare_dataset.py</code> and <code>manage.py import_messages</code>.</li>
+    </ul>
+  </section>
+</div>
+<section class="card" style="margin-top:16px" aria-labelledby="hist-h">
+  <h2 id="hist-h">Import history</h2>
+  {% if page.object_list %}
+  <div class="table-wrap"><table><thead><tr><th>#</th><th>File</th><th>Status</th><th class="num">Rows</th><th class="num">Accepted</th><th class="num">Duplicates</th><th class="num">Rejected</th><th>By</th><th>Started</th></tr></thead><tbody>
+  {% for b in page %}
+    <tr><td><a href="{% url 'import-detail' b.pk %}">{{ b.pk }}</a></td><td>{{ b.original_filename }}</td>
+      <td><span class="badge {% if b.status == 'completed' %}badge-good{% elif b.status == 'failed' %}badge-bad{% else %}badge-warn{% endif %}">{{ b.get_status_display }}</span></td>
+      <td class="num">{{ b.total_rows|intcomma }}</td><td class="num">{{ b.accepted_count|intcomma }}</td><td class="num">{{ b.duplicate_count|intcomma }}</td><td class="num">{{ b.rejected_count|intcomma }}</td>
+      <td>{{ b.created_by.username|default:"command" }}</td><td class="nowrap small">{{ b.started_at|date:"j M Y H:i" }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% include "feedback/partials/pagination.html" %}
+  {% else %}<p class="empty">No imports yet.</p>{% endif %}
+</section>
+{% endblock %}

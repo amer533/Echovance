@@ -1,0 +1,42 @@
+{% extends "feedback/base.html" %}
+{% block title %}Alert #{{ alert.pk }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="small"><a href="{% url 'alerts' %}">← Alerts</a></p>
+  <h1>{{ alert.get_rule_display }}: <a href="{% url 'issue-detail' alert.issue_id %}">{{ alert.issue.title }}</a></h1>
+  <p class="secondary small">Window {{ alert.window_start|date:"j M Y" }} – {{ alert.window_last_day|date:"j M Y" }} (UTC, inclusive) · rule {{ alert.rule_version }} · revision {{ alert.revision }} · data scope <span class="badge{% if alert.data_scope == 'demo' %} badge-mock{% endif %}">{{ alert.get_data_scope_display }}</span></p></div>
+  <span class="badge {% if alert.status == 'open' %}badge-warn{% elif alert.status == 'acknowledged' %}badge-good{% endif %}">{{ alert.get_status_display }}</span></div>
+
+{% if alert.is_stale %}<div class="banner banner-error" role="status"><strong>Stale snapshot.</strong> {{ alert.stale_reason }} (since {{ alert.stale_at|date:"j M Y H:i" }}). The figures below are what the rule saw when the alert was created; the review decision and linked actions are preserved.{% if alert.superseded_by %} Current revision: <a href="{% url 'alert-detail' alert.superseded_by_id %}">alert #{{ alert.superseded_by_id }}</a>.{% endif %}</div>{% endif %}
+{% if alert.data_scope == 'legacy_mixed' %}<div class="banner banner-warn small">Legacy alert computed before the real-AI upgrade over mixed mock + real analyses. Kept as a historical snapshot.</div>{% elif alert.data_scope == 'demo' %}<div class="banner banner-warn small">Computed from MOCK demo analyses, not from a language model.</div>{% endif %}
+<section class="tiles">
+  <div class="tile"><div class="label">Messages in window</div><div class="value">{{ alert.current_count }}</div><div class="sub">{{ alert.current_share_pct }}% of {{ alert.current_window_volume }} analysed</div></div>
+  <div class="tile"><div class="label">Baseline mean / window</div><div class="value">{{ alert.baseline_mean|floatformat:1 }}</div><div class="sub">share {{ alert.baseline_share_pct }}% · volumes {{ alert.baseline_window_volumes|join:", " }}</div></div>
+  <div class="tile"><div class="label">Change</div><div class="value">{% if alert.growth_ratio %}×{{ alert.growth_ratio|floatformat:2 }}{% else %}new{% endif %}</div><div class="sub">{% if not alert.growth_ratio %}no baseline mentions{% else %}vs baseline mean{% endif %}</div></div>
+</section>
+
+<div class="grid grid-2">
+  <section class="card"><h2>Why this alert fired</h2><p>{{ alert.explanation }}</p>
+    <details class="table-view"><summary>Thresholds applied</summary><dl class="kv small">{% for k, v in alert.thresholds.items %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl></details></section>
+  <section class="card"><h2>Trend around the alert</h2>
+    {% include "feedback/partials/trend_chart.html" with highlight_legend=True chart_label="Weekly messages for this issue; alert window highlighted" %}</section>
+</div>
+
+<div class="grid grid-2" style="margin-top:16px">
+  <section class="card stack"><h2>Manager review</h2>
+    {% if alert.reviewed_by %}<p class="small">Reviewed by <strong>{{ alert.reviewed_by.username }}</strong> on {{ alert.reviewed_at|date:"j M Y H:i" }}{% if alert.review_note %}: “{{ alert.review_note }}”{% endif %}</p>{% endif %}
+    {% if is_manager %}
+      <form method="post" action="{% url 'alert-review' alert.pk %}">{% csrf_token %}
+        <div class="field"><label for="id_status">Decision</label>{{ review_form.status }}</div>
+        <div class="field"><label for="id_note">Note (required to dismiss)</label>{{ review_form.note }}</div>
+        <button class="btn" type="submit">Record review</button></form>
+      <form method="post" action="{% url 'action-suggest' alert.issue_id %}">{% csrf_token %}<input type="hidden" name="alert" value="{{ alert.pk }}">
+        <button class="btn btn-primary" type="submit" data-busy-text="Asking the AI…">Suggest an action with AI</button> <span class="small muted">Result needs your approval.</span></form>
+    {% else %}<p class="muted">Only managers can review alerts.</p>{% endif %}
+    {% if actions %}<h3>Linked actions</h3>{% for a in actions %}<p class="small"><a href="{% url 'action-detail' a.pk %}">{{ a.title }}</a> · {{ a.get_status_display }}</p>{% endfor %}{% endif %}
+  </section>
+  <section class="card"><h2>Evidence ({{ evidence|length }} most recent)</h2>
+    {% for m in evidence %}<div style="margin-bottom:10px"><p class="small secondary" style="margin:0"><a href="{% url 'message-detail' m.message_id %}">{{ m.message_created_at|date:"j M Y H:i" }} · tweet {{ m.message.source_message_id }}</a></p><div class="quote small">“{{ m.evidence_text }}”</div></div>
+    {% empty %}<p class="muted">No evidence stored.</p>{% endfor %}
+  </section>
+</div>
+{% endblock %}

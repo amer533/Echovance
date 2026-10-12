@@ -1,0 +1,26 @@
+{% extends "feedback/base.html" %}
+{% block title %}Grouping review{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Grouping review</h1>
+  <p class="secondary">Issues are grouped by taxonomy key; a similarity check (<code>{{ method }}</code>) flags real-data mentions that read more like another issue <em>of the same category</em>. Nothing is merged automatically: accepting moves the mention (its original issue and your decision are recorded), rejecting keeps it.</p></div></div>
+<section class="card">
+  <nav class="tabs" aria-label="Status">{% for v, l in statuses %}<a href="?status={{ v }}" {% if status == v %}aria-current="true"{% endif %}>{{ l }}</a>{% endfor %}</nav>
+  {% for g in page %}
+    <div class="card" style="margin-bottom:12px;box-shadow:none">
+      <p class="small secondary" style="margin:0">Mention #{{ g.mention_id }} · <a href="{% url 'message-detail' g.mention.message_id %}">tweet {{ g.mention.message.source_message_id }}</a> · {{ g.method }} · {{ g.created_at|date:"j M Y H:i" }}</p>
+      <div class="quote small">“{{ g.mention.evidence_text }}”</div>
+      <p class="small">Currently <strong>{{ g.current_issue.title }}</strong> (similarity {{ g.similarity_current|floatformat:2 }}) → suggested <strong>{{ g.suggested_issue.title }}</strong> (similarity {{ g.similarity_suggested|floatformat:2 }})</p>
+      {% if g.nearest %}<p class="small muted" style="margin:0">Most similar mentions in the suggested issue:</p>
+        {% for n in g.nearest %}<div class="quote small">“{{ n.evidence_text|truncatechars:140 }}”</div>{% endfor %}{% endif %}
+      {% if g.status == 'pending' and can_run_pipeline %}
+        <form class="inline" method="post" action="{% url 'grouping-decide' g.pk %}" style="margin-top:8px">{% csrf_token %}
+          <div class="field"><label for="note-{{ g.pk }}">Note</label><input id="note-{{ g.pk }}" type="text" name="note" maxlength="300"></div>
+          <button class="btn btn-good" type="submit" name="decision" value="accept">Accept (move)</button>
+          <button class="btn" type="submit" name="decision" value="reject">Reject</button>
+        </form>
+      {% elif g.status != 'pending' %}<p class="small"><span class="badge">{{ g.get_status_display }}</span>{% if g.reviewed_by %} by {{ g.reviewed_by.username }} {{ g.reviewed_at|date:"j M Y H:i" }}{% endif %}{% if g.review_note %} — “{{ g.review_note }}”{% endif %}</p>{% endif %}
+    </div>
+  {% empty %}<p class="empty">No suggestions in this view. Suggestions are created when real AI analyses produce new mentions.</p>{% endfor %}
+  {% include "feedback/partials/pagination.html" with query="status="|add:status %}
+</section>
+{% endblock %}

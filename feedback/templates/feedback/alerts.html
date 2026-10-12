@@ -1,0 +1,46 @@
+{% extends "feedback/base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Alerts</h1><p class="secondary">Deterministic rule <span class="mono">{{ rules.RULE_VERSION }}</span> compares a {{ rules.WINDOW_DAYS }}-day window with the mean of the {{ rules.BASELINE_WINDOWS }} preceding windows.</p></div></div>
+<div class="grid grid-2" style="margin-bottom:16px">
+  <section class="card" aria-labelledby="det-h"><h2 id="det-h">Run trend detection</h2>
+    {% if can_run_pipeline %}
+    <form method="post" action="{% url 'detect-alerts' %}">{% csrf_token %}
+      <div class="field"><label for="id_window_end">Window end (exclusive, UTC)</label>{{ detect_form.window_end }}<span class="help">Latest complete window ends {{ latest_end|date:"j M Y"|default:"— (no data)" }}.</span></div>
+      <div class="field"><label for="id_scope">Data scope</label>{{ detect_form.scope }}<span class="help">Alerts are computed from ONE scope; mock and real data are never mixed.</span></div>
+      <div class="field"><label>{{ detect_form.all_windows }} Backfill every historical window</label></div>
+      <button class="btn btn-primary" type="submit" data-busy-text="Detecting…">Detect</button>
+    </form>
+    <p class="small muted">Re-running is safe: an alert is unique per issue, window and rule version.</p>
+    {% else %}<p class="muted">Your role cannot run detection.</p>{% endif %}
+  </section>
+  <section class="card" aria-labelledby="rule-h"><h2 id="rule-h">Rule thresholds</h2>
+    <ul class="small secondary">
+      <li><strong>Surge</strong>: current ≥ {{ rules.MIN_CURRENT_MENTIONS }} messages, at least +{{ rules.MIN_ABSOLUTE_INCREASE }} over the baseline mean, ≥ ×{{ rules.MIN_GROWTH_RATIO }} the mean, and share of analysed messages ≥ ×{{ rules.MIN_SHARE_RATIO }} the baseline share.</li>
+      <li><strong>Emerging</strong>: no baseline mentions and current ≥ {{ rules.MIN_EMERGING_MENTIONS }} (no growth % is shown — it would be infinite).</li>
+      <li>No alerts when any window has fewer than {{ rules.MIN_WINDOW_ANALYZED_MESSAGES }} analysed messages.</li>
+    </ul>
+  </section>
+</div>
+<section class="card">
+  <nav class="tabs" aria-label="Data scope">
+    {% for v, l in scopes %}<a href="?scope={{ v }}&amp;status={{ status }}{% if show_stale %}&amp;stale=1{% endif %}" {% if scope == v %}aria-current="true"{% endif %}>{{ l }}</a>{% endfor %}
+  </nav>
+  {% if scope == 'demo' %}<div class="banner banner-warn small">Demo alerts are computed from MOCK keyword analyses, not AI.</div>{% elif scope == 'legacy_mixed' %}<div class="banner banner-warn small">Legacy alerts were computed before the real-AI upgrade over mixed mock + real data. They are kept as historical snapshots with their reviews and linked actions.</div>{% endif %}
+  <nav class="tabs" aria-label="Alert status">
+    {% for v, l in statuses %}<a href="?scope={{ scope }}&amp;status={{ v }}{% if show_stale %}&amp;stale=1{% endif %}" {% if status == v %}aria-current="true"{% endif %}>{{ l }}</a>{% endfor %}
+    <a href="?scope={{ scope }}&amp;status=all{% if show_stale %}&amp;stale=1{% endif %}" {% if status == 'all' %}aria-current="true"{% endif %}>All</a>
+    <a href="?scope={{ scope }}&amp;status={{ status }}{% if not show_stale %}&amp;stale=1{% endif %}" {% if show_stale %}aria-current="true"{% endif %}>{% if show_stale %}Including stale{% else %}Show stale too{% endif %}</a>
+  </nav>
+  {% if page.object_list %}
+  <div class="table-wrap"><table><thead><tr><th>Issue</th><th>Rule</th><th>Window (UTC)</th><th class="num">Messages</th><th class="num">Baseline mean</th><th class="num">Change</th><th>Status</th></tr></thead><tbody>
+  {% for a in page %}
+    <tr><td><a href="{% url 'alert-detail' a.pk %}">{{ a.issue.title }}</a>{% if a.is_stale %} <span class="badge badge-bad">stale</span>{% endif %}{% if a.revision > 1 %} <span class="badge">rev {{ a.revision }}</span>{% endif %}</td><td><span class="badge {% if a.rule == 'surge' %}badge-warn{% else %}badge-info{% endif %}">{{ a.get_rule_display }}</span></td>
+      <td class="small nowrap">{{ a.window_start|date:"j M" }} – {{ a.window_last_day|date:"j M Y" }}</td><td class="num">{{ a.current_count }}</td><td class="num">{{ a.baseline_mean|floatformat:1 }}</td>
+      <td class="num">{% if a.growth_ratio %}×{{ a.growth_ratio|floatformat:2 }}{% else %}new{% endif %}</td><td>{{ a.get_status_display }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% include "feedback/partials/pagination.html" %}
+  {% else %}<p class="empty">No alerts in this view.</p>{% endif %}
+</section>
+{% endblock %}

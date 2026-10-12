@@ -1,0 +1,19 @@
+{% comment %}Weekly single-series bar chart. Hover a bar for its exact value; the table view lists every value.{% endcomment %}
+{% if trend.bars %}
+<svg class="chart" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="{{ chart_label|default:'Weekly customer messages' }}">
+  <line class="gridline" x1="0" y1="50" x2="100" y2="50"></line>
+  <line class="gridline" x1="0" y1="100" x2="100" y2="100"></line>
+  {% for b in trend.bars %}
+    <rect class="bar{% if b.highlight %} hl{% endif %}" x="{{ b.x|stringformat:'.3f' }}" y="{{ b.y|stringformat:'.3f' }}" width="{{ b.w|stringformat:'.3f' }}" height="{{ b.h|stringformat:'.3f' }}" rx="0.6"><title>{{ b.label }}: {{ b.count }} message{{ b.count|pluralize }}{% if b.volume %} of {{ b.volume }} analysed ({{ b.share_pct }}%){% endif %}</title></rect>
+  {% endfor %}
+</svg>
+<div class="chart-axis"><span>{{ trend.bars.0.label }}</span><span>max {{ trend.max }}</span><span>{% with last=trend.bars|last %}{{ last.label }}{% endwith %}</span></div>
+{% if highlight_legend %}<div class="chart-legend"><span><span class="swatch" style="background:var(--series-hl)"></span>Alert window</span><span><span class="swatch" style="background:var(--series-1)"></span>Other windows</span></div>{% endif %}
+<details class="table-view"><summary>Table view</summary>
+  <div class="table-wrap"><table><thead><tr><th>Window (UTC)</th><th class="num">Messages</th><th class="num">Analysed volume</th><th class="num">Share</th></tr></thead><tbody>
+  {% for b in trend.bars %}<tr><td>{{ b.label }}{% if b.highlight %} <span class="badge badge-warn">alert window</span>{% endif %}</td><td class="num">{{ b.count }}</td><td class="num">{{ b.volume }}</td><td class="num">{% if b.share_pct is not None %}{{ b.share_pct }}%{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</details>
+{% else %}
+<p class="empty">No analysed data yet for this chart.</p>
+{% endif %}

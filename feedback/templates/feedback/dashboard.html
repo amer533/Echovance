@@ -1,0 +1,90 @@
+{% extends "feedback/base.html" %}
+{% load humanize %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Operations dashboard</h1>
+    <p class="secondary">
+      {% if o.date_range.0 %}Customer messages from {{ o.date_range.0|date:"j M Y" }} to {{ o.date_range.1|date:"j M Y" }} (UTC). Counts cover only imported public support tweets, not all customers.
+      {% else %}No data imported yet. <a href="{% url 'imports' %}">Import a CSV</a> to begin.{% endif %}
+    </p>
+  </div>
+</div>
+{% include "feedback/partials/scope_toggle.html" %}
+
+<section class="tiles" aria-label="Key statistics">
+  <a class="tile" href="{% url 'messages' %}?role=root"><div class="label">Customer conversations</div><div class="value">{{ o.customer_roots|intcomma }}</div><div class="sub">{{ o.agent_replies|intcomma }} agent replies stored separately</div></a>
+  <div class="tile"><div class="label">Analysed ({{ scope }} data)</div><div class="value">{{ o.analysed_in_scope|intcomma }}</div><div class="sub">{{ o.needs_review_in_scope }} need review · of {{ o.customer_roots|intcomma }} conversations</div></div>
+  <div class="tile"><div class="label">Complaints identified</div><div class="value">{{ o.complaints|intcomma }}</div><div class="sub">{{ o.message_types.feature_request|default:0 }} feature requests · {{ o.message_types.question|default:0 }} questions</div></div>
+  <a class="tile" href="{% url 'issues' %}"><div class="label">Recurring issues</div><div class="value">{{ o.issues_with_mentions }}</div><div class="sub">with supporting evidence</div></a>
+  <a class="tile" href="{% url 'alerts' %}?status=open&amp;scope={{ scope }}"><div class="label">Alerts awaiting review</div><div class="value">{{ o.alerts_open }}</div><div class="sub">{{ o.alerts_total }} detected in total</div></a>
+  <a class="tile" href="{% url 'actions' %}?status=proposed"><div class="label">Actions to review</div><div class="value">{{ o.actions.proposed }}</div><div class="sub">{{ o.actions.in_progress }} in progress · {{ o.actions.completed }} completed</div></a>
+</section>
+
+<section class="card" style="margin-bottom:16px" aria-labelledby="prov-h">
+  <div class="card-head"><h2 id="prov-h">Analysis provenance</h2><span class="muted small">every conversation counted once</span></div>
+  <div class="tiles" style="margin-bottom:0">
+    <div class="tile"><div class="label">Real AI analysed</div><div class="value">{{ o.provenance.real_analysed|intcomma }}</div><div class="sub">current analysis from a real LLM</div></div>
+    <div class="tile"><div class="label">Human-corrected</div><div class="value">{{ o.provenance.human_corrected|intcomma }}</div></div>
+    <div class="tile"><div class="label">Mock only (demo)</div><div class="value">{{ o.provenance.mock_only|intcomma }}</div><div class="sub">not counted in real metrics</div></div>
+    <div class="tile"><div class="label">Real analysis failed</div><div class="value">{{ o.provenance.real_failed|intcomma }}</div></div>
+    <div class="tile"><div class="label">Privacy-blocked</div><div class="value">{{ o.provenance.privacy_blocked|intcomma }}</div></div>
+    <a class="tile" href="{% url 'jobs' %}"><div class="label">Unprocessed</div><div class="value">{{ o.provenance.unprocessed|intcomma }}</div><div class="sub">{{ o.jobs_open }} open AI job{{ o.jobs_open|pluralize }}</div></a>
+  </div>
+  {% if o.alerts_stale or o.alerts_legacy %}<p class="small muted" style="margin:8px 0 0">{{ o.alerts_legacy }} legacy alert{{ o.alerts_legacy|pluralize }} (computed before the real-AI upgrade over mixed mock + real data) · {{ o.alerts_stale }} stale alert{{ o.alerts_stale|pluralize }} — see <a href="{% url 'alerts' %}?scope=legacy_mixed&amp;status=all&amp;stale=1">alerts</a>.</p>{% endif %}
+</section>
+
+<div class="grid grid-2">
+  <section class="card" aria-labelledby="trend-h">
+    <div class="card-head"><h2 id="trend-h">Issue mentions per week</h2><span class="muted small">7-day windows, all issues</span></div>
+    {% include "feedback/partials/trend_chart.html" with chart_label="Issue mentions per 7-day window" %}
+  </section>
+
+  <section class="card" aria-labelledby="cat-h">
+    <div class="card-head"><h2 id="cat-h">Issue distribution by category</h2><a class="small" href="{% url 'issues' %}">All issues →</a></div>
+    {% for c in o.categories %}
+      <div class="hbar-row"><a href="{% url 'issues' %}?category={{ c.code }}">{{ c.label }}</a><div class="hbar-track" title="{{ c.label }}: {{ c.count }}"><div class="hbar-fill" style="width: {{ c.pct|floatformat:1 }}%"></div></div><span class="num small">{{ c.count }}</span></div>
+    {% empty %}<p class="empty">No issue mentions yet — run analysis on imported messages.</p>{% endfor %}
+  </section>
+
+  <section class="card" aria-labelledby="top-h">
+    <div class="card-head"><h2 id="top-h">Most reported issues</h2></div>
+    {% if o.top_issues %}
+    <div class="table-wrap"><table><thead><tr><th>Issue</th><th class="num">Messages</th><th>Last seen</th></tr></thead><tbody>
+      {% for i in o.top_issues %}<tr><td><a href="{% url 'issue-detail' i.pk %}">{{ i.title }}</a>{% if i.open_alerts %} <span class="badge badge-warn">{{ i.open_alerts }} alert{{ i.open_alerts|pluralize }}</span>{% endif %}</td><td class="num">{{ i.mention_count }}</td><td class="nowrap small">{{ i.last_seen|date:"j M Y" }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    {% else %}<p class="empty">Nothing yet.</p>{% endif %}
+  </section>
+
+  <section class="card" aria-labelledby="alert-h">
+    <div class="card-head"><h2 id="alert-h">Alerts awaiting review</h2><a class="small" href="{% url 'alerts' %}">All alerts →</a></div>
+    {% for a in open_alerts %}
+      <p><a href="{% url 'alert-detail' a.pk %}">{{ a.issue.title }}</a><br><span class="small secondary">{{ a.get_rule_display }} · {{ a.current_count }} messages in {{ a.window_start|date:"j M" }}–{{ a.window_last_day|date:"j M Y" }}{% if a.growth_ratio %} · ×{{ a.growth_ratio|floatformat:1 }} baseline{% endif %}</span></p>
+    {% empty %}<p class="empty">No open alerts.{% if can_run_pipeline %} Run detection on the <a href="{% url 'alerts' %}">Alerts</a> page.{% endif %}</p>{% endfor %}
+  </section>
+
+  <section class="card" aria-labelledby="act-h">
+    <div class="card-head"><h2 id="act-h">Task progress</h2><a class="small" href="{% url 'actions' %}">All actions →</a></div>
+    <dl class="kv">
+      {% for status, label, n in action_rows %}<dt>{{ label }}</dt><dd><a href="{% url 'actions' %}?status={{ status }}">{{ n }}</a></dd>{% endfor %}
+    </dl>
+    {% if proposed_actions %}<h3 style="margin-top:12px">Proposals awaiting decision</h3>
+      {% for a in proposed_actions %}<p class="small"><a href="{% url 'action-detail' a.pk %}">{{ a.title }}</a> {% if a.origin == 'ai' %}<span class="badge badge-info">AI</span>{% endif %}{% if a.ai_is_mock %} <span class="badge badge-mock">MOCK</span>{% endif %}</p>{% endfor %}
+    {% endif %}
+    {% if my_actions %}<h3 style="margin-top:12px">Assigned to me</h3>
+      {% for a in my_actions %}<p class="small"><a href="{% url 'action-detail' a.pk %}">{{ a.title }}</a> · {{ a.get_status_display }}</p>{% endfor %}
+    {% endif %}
+  </section>
+
+  <section class="card" aria-labelledby="run-h">
+    <div class="card-head"><h2 id="run-h">Pipeline</h2></div>
+    <dl class="kv">
+      <dt>Imports</dt><dd><a href="{% url 'imports' %}">{{ o.imports }}</a></dd>
+      <dt>LLM provider</dt><dd>{{ llm_config.provider }} / {{ llm_config.model }} {% if llm_config.is_mock %}<span class="badge badge-mock">MOCK</span>{% endif %}</dd>
+      <dt>Last analysis run</dt><dd>{% if o.last_run %}#{{ o.last_run.pk }} · {{ o.last_run.started_at|date:"j M Y H:i" }} · {{ o.last_run.succeeded }}/{{ o.last_run.requested }} ok{% else %}—{% endif %}</dd>
+      <dt>Analysed by real LLM</dt><dd>{{ o.current_analyses_real|intcomma }}</dd>
+    </dl>
+  </section>
+</div>
+{% endblock %}

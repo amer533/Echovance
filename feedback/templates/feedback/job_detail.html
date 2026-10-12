@@ -1,0 +1,40 @@
+{% extends "feedback/base.html" %}
+{% load humanize %}
+{% block title %}Job #{{ job.pk }}{% endblock %}
+{% block content %}
+{% if auto_refresh %}<meta http-equiv="refresh" content="10">{% endif %}
+<div class="page-head"><div><p class="small"><a href="{% url 'jobs' %}">← AI jobs</a></p>
+  <h1>Job #{{ job.pk }} · {{ job.get_selection_display }}</h1>
+  <p class="secondary small">{{ job.provider }}/{{ job.model_name }} · prompt {{ job.prompt_version }}{% if job.is_mock %} · <span class="badge badge-mock">MOCK</span>{% endif %} · created by {{ job.created_by.username }} {{ job.created_at|date:"j M Y H:i" }}{% if job.authorized_by %} · authorised by {{ job.authorized_by.username }} {{ job.authorized_at|date:"j M Y H:i" }}{% endif %}</p></div>
+  <span class="badge {% if job.status == 'completed' %}badge-good{% elif job.status == 'stopped' or job.status == 'cancelled' %}badge-bad{% elif job.status == 'draft' %}badge-warn{% else %}badge-info{% endif %}">{{ job.get_status_display }}</span></div>
+{% if job.stop_reason %}<div class="banner {% if job.status == 'completed' %}banner-success{% else %}banner-warn{% endif %}" role="status">{{ job.stop_reason }}</div>{% endif %}
+{% if auto_refresh %}<p class="small muted">This page refreshes every 10 seconds while the job is queued or running. A worker must be running: <code>manage.py process_jobs --loop</code>.</p>{% endif %}
+
+<section class="tiles">
+  <div class="tile"><div class="label">Processed</div><div class="value">{{ job.processed }} / {{ job.max_messages }}</div><div class="sub">{{ job.succeeded }} ok · {{ job.needs_review }} review · {{ job.failed }} failed · {{ job.reused }} reused · {{ job.privacy_blocked }} privacy-blocked</div></div>
+  <div class="tile"><div class="label">Requests</div><div class="value">{{ job.requests_used }} / {{ job.max_requests }}</div><div class="sub">global remaining {{ budget.remaining }}</div></div>
+  <div class="tile"><div class="label">Tokens</div><div class="value">{{ job.input_tokens_used|intcomma }}</div><div class="sub">in (limit {{ job.max_input_tokens|intcomma }}) · {{ job.output_tokens_used|intcomma }} out (limit {{ job.max_output_tokens|intcomma }})</div></div>
+  <div class="tile"><div class="label">Cost</div><div class="value">${{ job.cost_usd|floatformat:4 }}</div><div class="sub">limit ${{ job.max_cost_usd }}</div></div>
+</section>
+
+<div class="grid grid-2">
+  <section class="card stack"><h2>Controls</h2>
+    {% if job.status == 'draft' %}
+      <p class="small">Estimate for {{ estimate.requests }} requests: ~{{ estimate.input_tokens|intcomma }} input tokens, ≤ {{ estimate.max_output_tokens|intcomma }} output tokens, {% if estimate.cost_usd is None %}cost unknown{% else %}${{ estimate.cost_usd|floatformat:4 }}{% endif %}, at least {{ estimate.minimum_minutes_at_rate_limit }} min at the rate limit.</p>
+      {% if is_manager %}<form method="post" action="{% url 'job-update' job.pk %}">{% csrf_token %}<input type="hidden" name="op" value="authorize"><button class="btn btn-primary" type="submit">Authorise job (up to {{ job.max_requests }} real requests)</button></form>
+      {% else %}<p class="muted">A manager must authorise this job.</p>{% endif %}
+    {% endif %}
+    <div class="btn-row">
+      {% if job.status == 'authorized' or job.status == 'running' %}<form method="post" action="{% url 'job-update' job.pk %}">{% csrf_token %}<input type="hidden" name="op" value="pause"><button class="btn" type="submit">Pause</button></form>{% endif %}
+      {% if is_manager and job.status == 'paused' or is_manager and job.status == 'stopped' or is_manager and job.status == 'running' %}<form method="post" action="{% url 'job-update' job.pk %}">{% csrf_token %}<input type="hidden" name="op" value="resume"><button class="btn" type="submit">Resume</button></form>{% endif %}
+      {% if job.status in 'draft,authorized,running,paused' %}<form method="post" action="{% url 'job-update' job.pk %}">{% csrf_token %}<input type="hidden" name="op" value="cancel"><button class="btn btn-danger" type="submit">Cancel</button></form>{% endif %}
+    </div>
+    <p class="small muted">Resuming continues where the job stopped: conversations already analysed are skipped, so nothing is sent twice.</p>
+  </section>
+  <section class="card"><h2>Real requests of this job</h2>
+    {% if requests %}<div class="table-wrap"><table><thead><tr><th>Time</th><th>Purpose</th><th>Status</th><th class="num">Latency</th><th class="num">Tokens</th></tr></thead><tbody>
+    {% for r in requests %}<tr><td class="small nowrap">{{ r.created_at|date:"H:i:s" }}</td><td class="small">{{ r.purpose }}</td><td class="small">{{ r.status }}{% if r.error_code %} <code>{{ r.error_code }}</code>{% endif %}</td><td class="num">{{ r.latency_ms|default:"—" }}</td><td class="num">{{ r.input_tokens|default:"—" }}/{{ r.output_tokens|default:"—" }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<p class="empty">No real requests yet.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

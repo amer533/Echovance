@@ -1,0 +1,23 @@
+{% extends "feedback/base.html" %}
+{% block title %}Blind labelling{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Blind evaluation labelling</h1>
+  <p class="secondary">Independent human labels for the held-out evaluation sample. Model output is deliberately <strong>not shown</strong>. Follow the labelling rules in the README (Evaluation section). You have labelled {{ mine }} of {{ total }} messages.</p></div></div>
+{% if msg %}
+<section class="card" aria-label="Message to label">
+  <p class="small muted">Evaluation message · {{ msg.created_at|date:"j M Y H:i" }} UTC</p>
+  <div class="quote">{{ msg.text }}</div>
+  <form method="post">{% csrf_token %}<input type="hidden" name="message" value="{{ msg.pk }}">
+    <fieldset class="field" style="border:0;padding:0"><legend><strong>Message type</strong></legend>{{ form.message_type }}</fieldset>
+    <div class="field">{{ form.issue_keys.label_tag }}{{ form.issue_keys }}<span class="help">Only for complaints and feature requests. Ctrl/Cmd-click to select several distinct problems.</span></div>
+    <div class="field">{{ form.notes.label_tag }}{{ form.notes }}</div>
+    <button class="btn btn-primary" type="submit">Save label and continue</button>
+  </form>
+</section>
+<details class="card" style="margin-top:16px"><summary>Taxonomy reference</summary>
+  {% for code, c in taxonomy.items %}<p class="small"><strong>{{ c.label }}</strong> (<code>{{ code }}</code>): {% for sub, d in c.subtypes.items %}{{ sub }} — {{ d }}{% if not forloop.last %}; {% endif %}{% endfor %}</p>{% endfor %}
+</details>
+{% else %}
+<section class="card"><p class="empty">{% if total %}You have labelled every evaluation message. Thank you. Run <code>manage.py evaluate_ai</code> once analyses from the real model exist.{% else %}The evaluation sample file (data/eval/eval_sample.csv) was not found.{% endif %}</p></section>
+{% endif %}
+{% endblock %}

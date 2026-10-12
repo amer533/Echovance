@@ -1,0 +1,71 @@
+{% extends "feedback/base.html" %}
+{% block title %}{{ act.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="small"><a href="{% url 'actions' %}">← Actions</a></p><h1>{{ act.title }}</h1>
+  <p class="secondary small">For <a href="{% url 'issue-detail' act.issue_id %}">{{ act.issue.title }}</a>{% if act.alert %} · from <a href="{% url 'alert-detail' act.alert_id %}">alert #{{ act.alert_id }}</a>{% endif %}</p></div>
+  <span class="badge {% if act.status == 'proposed' %}badge-warn{% elif act.status == 'completed' %}badge-good{% elif act.status == 'rejected' %}badge-bad{% else %}badge-info{% endif %}">{{ act.get_status_display }}</span></div>
+
+{% if act.origin == 'ai' %}<div class="banner banner-info small"><strong>AI proposal</strong> from {{ act.ai_provider }}/{{ act.ai_model }} (prompt {{ act.ai_prompt_version }}){% if act.ai_is_mock %} <span class="badge badge-mock">MOCK — template text, not a real model</span>{% endif %}. It has no effect until a manager approves it.</div>{% endif %}
+
+<div class="grid grid-2">
+  <section class="card"><h2>Proposal</h2>
+    {% if act.steps %}<ol>{% for st in act.steps %}<li>{{ st }}</li>{% endfor %}</ol>{% else %}<p style="white-space:pre-wrap">{{ act.description }}</p>{% endif %}
+    {% if act.limitations %}<h3>Limitations</h3><p class="secondary" style="white-space:pre-wrap">{{ act.limitations }}</p>{% endif %}
+    {% if act.uncertainty %}<p class="small">AI-stated uncertainty: <span class="badge {% if act.uncertainty == 'high' %}badge-bad{% elif act.uncertainty == 'medium' %}badge-warn{% else %}badge-good{% endif %}">{{ act.uncertainty }}</span></p>{% endif %}
+    {% if act.rationale %}<h3>Rationale</h3><p class="secondary" style="white-space:pre-wrap">{{ act.rationale }}</p>{% endif %}
+    <dl class="kv small">
+      <dt>Created</dt><dd>{{ act.created_at|date:"j M Y H:i" }} by {{ act.created_by.username|default:"—" }}</dd>
+      <dt>Decision</dt><dd>{% if act.decided_by %}{{ act.decided_by.username }}, {{ act.decided_at|date:"j M Y H:i" }}{% if act.decision_note %} — “{{ act.decision_note }}”{% endif %}{% else %}awaiting manager review{% endif %}</dd>
+      <dt>Assignee</dt><dd>{{ act.assignee.username|default:"—" }}{% if act.due_date %} · due {{ act.due_date|date:"j M Y" }}{% endif %}</dd>
+      {% if act.completed_at %}<dt>Completed</dt><dd>{{ act.completed_at|date:"j M Y H:i" }}{% if act.completion_note %} — “{{ act.completion_note }}”{% endif %}</dd>{% endif %}
+    </dl>
+    {% if act.status == 'completed' %}<p class="small muted">Completing this action does not mark the issue resolved; issue status is decided separately.</p>{% endif %}
+  </section>
+
+  <section class="card stack"><h2>Next steps</h2>
+    {% if allowed %}
+      <form method="post" action="{% url 'action-update' act.pk %}">{% csrf_token %}<input type="hidden" name="kind" value="transition">
+        <div class="field"><label for="id_note">Note{% if 'rejected' in allowed %} (required to reject){% endif %}</label>{{ transition_form.note }}</div>
+        <div class="btn-row">{% for t in allowed %}
+          <button class="btn {% if t == 'rejected' %}btn-danger{% elif t == 'approved' or t == 'completed' %}btn-good{% else %}btn-primary{% endif %}" type="submit" name="status" value="{{ t }}">
+            {% if t == 'approved' %}Approve{% elif t == 'rejected' %}Reject{% elif t == 'in_progress' %}Start work{% elif t == 'completed' %}Mark completed{% endif %}</button>
+        {% endfor %}</div>
+      </form>
+    {% elif act.status == 'approved' and not act.assignee %}<p class="muted">Assign someone before work can start.</p>
+    {% elif act.status == 'completed' or act.status == 'rejected' %}<p class="muted">This action is closed.</p>
+    {% else %}<p class="muted">You have no available transitions for this action.</p>{% endif %}
+
+    {% if is_manager and can_assign %}
+      <form class="inline" method="post" action="{% url 'action-update' act.pk %}">{% csrf_token %}<input type="hidden" name="kind" value="assign">
+        <div class="field"><label for="id_assignee">Assignee</label>{{ assign_form.assignee }}</div>
+        <div class="field"><label for="id_due_date">Due date</label>{{ assign_form.due_date }}</div>
+        <button class="btn" type="submit">Assign</button></form>
+    {% endif %}
+    {% if is_manager and act.status == 'proposed' %}
+      <details><summary class="small">Edit proposal before deciding</summary>
+        <form method="post" action="{% url 'action-update' act.pk %}" style="margin-top:8px">{% csrf_token %}<input type="hidden" name="kind" value="edit">
+          {% for field in edit_form %}<div class="field">{{ field.label_tag }}{{ field }}</div>{% endfor %}
+          <button class="btn" type="submit">Save changes</button></form></details>
+    {% endif %}
+  </section>
+</div>
+
+{% if evidence %}
+<section class="card" style="margin-top:16px"><h2>Cited customer evidence</h2>
+  {% for m in evidence %}<div style="margin-bottom:10px"><p class="small secondary" style="margin:0"><a href="{% url 'message-detail' m.message_id %}">{{ m.message_created_at|date:"j M Y H:i" }} · tweet {{ m.message.source_message_id }}</a> · {{ m.source }}</p><div class="quote small">“{{ m.evidence_text }}”</div></div>{% endfor %}
+</section>
+{% endif %}
+
+<div class="grid grid-2" style="margin-top:16px">
+  <section class="card"><h2>History</h2>
+    <ol class="timeline">{% for e in events %}
+      <li><p class="small" style="margin:0"><strong>{{ e.event_label }}</strong>{% if e.from_status or e.to_status %} · {{ e.from_status|default:"—" }} → {{ e.to_status }}{% endif %}</p>
+        <p class="small secondary" style="margin:0">{{ e.actor.username|default:"system" }} · {{ e.created_at|date:"j M Y H:i:s" }}{% if e.details.note %} · “{{ e.details.note }}”{% endif %}{% if e.details.assignee %} · assignee {{ e.details.assignee }}{% endif %}</p></li>
+    {% empty %}<li>No events.</li>{% endfor %}</ol>
+  </section>
+  <section class="card"><h2>Subsequent complaint trend</h2>
+    {% include "feedback/partials/trend_chart.html" with highlight_legend=act.alert chart_label="Weekly messages for this issue" %}
+    <p class="small muted">Historical counts for context only. The dataset ends in December 2017, so it cannot show effects of actions taken now, and a decline would not prove that an action caused an improvement.</p>
+  </section>
+</div>
+{% endblock %}

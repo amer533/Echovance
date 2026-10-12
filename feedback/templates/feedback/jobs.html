@@ -1,0 +1,43 @@
+{% extends "feedback/base.html" %}
+{% load humanize %}
+{% block title %}AI jobs{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>AI analysis jobs</h1>
+  <p class="secondary">Bounded, resumable batches of real LLM work. A job runs only after a manager authorises it, never exceeds its own request/token/cost limits or the global budget, and can be paused, cancelled and resumed safely. Workers: <code>manage.py process_jobs</code>.</p></div></div>
+
+<div class="grid grid-2" style="margin-bottom:16px">
+  <section class="card" aria-labelledby="new-h"><h2 id="new-h">New job</h2>
+    {% if can_run_pipeline %}
+    <form method="post">{% csrf_token %}
+      {% for field in form %}<div class="field">{{ field.label_tag }}{{ field }}{% if field.help_text %}<span class="help">{{ field.help_text }}</span>{% endif %}{{ field.errors }}</div>{% endfor %}
+      <button class="btn btn-primary" type="submit">Create draft job</button>
+    </form>
+    <p class="small muted">Per message (estimate, {{ llm_config.provider }}/{{ llm_config.model }}): ~{{ per_message.input_tokens|intcomma }} input tokens, ≤ {{ per_message.max_output_tokens|intcomma }} output tokens, {% if per_message.cost_usd is None %}<strong>cost unknown — prices not configured</strong>{% else %}${{ per_message.cost_usd|floatformat:6 }}{% endif %}.</p>
+    {% else %}<p class="muted">Your role cannot create jobs.</p>{% endif %}
+  </section>
+  <section class="card" aria-labelledby="bud-h"><h2 id="bud-h">Real-request budget</h2>
+    <dl class="kv">
+      <dt>Used / authorised</dt><dd>{{ budget.used }} / {{ budget.authorized }} (lifetime ceiling {{ budget.lifetime_ceiling }})</dd>
+      <dt>Remaining</dt><dd><strong>{{ budget.remaining }}</strong>{% if budget.halted %} — <span class="badge badge-bad">HALTED</span> {{ budget.halt_reason }}{% endif %}</dd>
+      <dt>Tokens used</dt><dd>{{ budget.input_tokens|intcomma }} in / {{ budget.output_tokens|intcomma }} out</dd>
+      <dt>Cost (month / ceiling)</dt><dd>${{ budget.month_cost_usd }} / ${{ budget.monthly_cost_ceiling_usd }}</dd>
+      <dt>Rate limit</dt><dd>{{ budget.rate_limit_rpm }} requests/minute</dd>
+      <dt>Conversations</dt><dd>{{ provenance.unprocessed|intcomma }} unprocessed · {{ provenance.mock_only|intcomma }} mock-only · {{ provenance.real_analysed|intcomma }} real</dd>
+    </dl>
+    <p class="small muted">The global authorised total can only be raised by the owner: <code>manage.py llm_budget --authorize N --confirm</code>.</p>
+  </section>
+</div>
+
+<section class="card"><h2>Jobs</h2>
+  {% if page.object_list %}
+  <div class="table-wrap"><table><thead><tr><th>#</th><th>Selection</th><th>Model</th><th>Status</th><th class="num">Progress</th><th class="num">Requests</th><th class="num">OK / review / failed</th><th>Created</th></tr></thead><tbody>
+  {% for j in page %}<tr><td><a href="{% url 'job-detail' j.pk %}">{{ j.pk }}</a></td><td class="small">{{ j.get_selection_display }}</td>
+    <td class="small">{{ j.provider }}/{{ j.model_name }}{% if j.is_mock %} <span class="badge badge-mock">MOCK</span>{% endif %}</td>
+    <td><span class="badge {% if j.status == 'completed' %}badge-good{% elif j.status == 'stopped' or j.status == 'cancelled' %}badge-bad{% elif j.status == 'draft' %}badge-warn{% else %}badge-info{% endif %}">{{ j.get_status_display }}</span></td>
+    <td class="num">{{ j.processed }} / {{ j.max_messages }}</td><td class="num">{{ j.requests_used }} / {{ j.max_requests }}</td>
+    <td class="num">{{ j.succeeded }} / {{ j.needs_review }} / {{ j.failed }}</td><td class="small nowrap">{{ j.created_at|date:"j M Y H:i" }} · {{ j.created_by.username }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% include "feedback/partials/pagination.html" %}
+  {% else %}<p class="empty">No jobs yet.</p>{% endif %}
+</section>
+{% endblock %}

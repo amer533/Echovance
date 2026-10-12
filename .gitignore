@@ -1,0 +1,39 @@
+# --- secrets & local config ---
+.env
+.env.*
+!.env.example
+.demo_credentials.txt
+
+# --- datasets ---
+# The Kaggle dump, derived subsets, evaluation splits and profiles stay local (CC BY-NC-SA 4.0,
+# personal data: never commit). Only the invented demo sample in data/sample/ is committed.
+data/*
+!data/sample/
+
+# --- local reports and generated benchmark/evaluation output (not part of the code submission) ---
+docs/
+
+# --- python / django ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+db.sqlite3
+staticfiles/
+media/
+*.log
+
+# --- editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+~$*
+
+# --- local database backups (contain customer data) ---
+backups/
+*.dump

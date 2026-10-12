@@ -1,0 +1,50 @@
+{% extends "feedback/base.html" %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Messages</h1><p class="secondary">Customer thread roots are complaint candidates. Follow-ups and agent replies are stored for context and never counted as complaints.</p></div></div>
+<div class="grid grid-2" style="margin-bottom:16px">
+  <section class="card" aria-labelledby="run-h">
+    <h2 id="run-h">Run AI analysis</h2>
+    {% if can_run_pipeline %}
+    <p class="small secondary">Analyses the oldest pending (or previously failed) conversations with <strong>{{ llm_config.provider }} / {{ llm_config.model }}</strong>{% if llm_config.is_mock %} <span class="badge badge-mock">MOCK</span>{% endif %}. Bulk runs: <code>manage.py run_analysis</code>.</p>
+    <form class="inline" method="post" action="{% url 'run-analysis' %}">{% csrf_token %}
+      <div class="field"><label for="id_limit">Messages</label>{{ run_form.limit }}</div>
+      <button class="btn btn-primary" type="submit" data-busy-text="Analysing…">Analyse</button>
+    </form>
+    {% else %}<p class="muted">Your role cannot run analysis.</p>{% endif %}
+  </section>
+  <section class="card" aria-labelledby="runs-h"><h2 id="runs-h">Recent runs</h2>
+    {% if runs %}<div class="table-wrap"><table><thead><tr><th>#</th><th>Model</th><th class="num">OK</th><th class="num">Review</th><th class="num">Failed</th><th>When</th></tr></thead><tbody>
+    {% for r in runs %}<tr><td>{{ r.pk }}</td><td class="small">{{ r.provider }}/{{ r.model_name }} {% if r.is_mock %}<span class="badge badge-mock">MOCK</span>{% endif %}</td><td class="num">{{ r.succeeded }}</td><td class="num">{{ r.needs_review }}</td><td class="num">{{ r.failed }}</td><td class="small nowrap">{{ r.started_at|date:"j M H:i" }}</td></tr>{% endfor %}
+    </tbody></table></div>{% else %}<p class="empty">No runs yet.</p>{% endif %}
+  </section>
+</div>
+<section class="card">
+  <form class="filters" method="get" role="search">
+    <div class="field"><label for="f-role">Messages</label><select id="f-role" name="role">
+      <option value="root" {% if role == 'root' %}selected{% endif %}>Customer conversations (roots)</option>
+      <option value="customer" {% if role == 'customer' %}selected{% endif %}>All customer messages</option>
+      <option value="agent" {% if role == 'agent' %}selected{% endif %}>Agent replies</option>
+      <option value="all" {% if role == 'all' %}selected{% endif %}>Everything</option></select></div>
+    <div class="field"><label for="f-status">Analysis status</label><select id="f-status" name="status"><option value="">Any</option>
+      {% for v, l in statuses %}<option value="{{ v }}" {% if filters.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-issue">Issue</label><select id="f-issue" name="issue"><option value="">Any</option>
+      {% for i in issues %}<option value="{{ i.pk }}" {% if filters.issue == i.pk|stringformat:'s' %}selected{% endif %}>{{ i.title }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-q">Text contains</label><input id="f-q" type="search" name="q" value="{{ filters.q }}" maxlength="100"></div>
+    {% if filters.batch %}<input type="hidden" name="batch" value="{{ filters.batch }}">{% endif %}
+    <button class="btn" type="submit">Filter</button>
+  </form>
+  {% if page.object_list %}
+  <div class="table-wrap"><table><thead><tr><th>Date (UTC)</th><th>Message</th><th>Role</th><th>Status</th><th>Issues</th></tr></thead><tbody>
+  {% for m in page %}
+    <tr><td class="nowrap small">{{ m.created_at|date:"j M Y H:i" }}</td>
+      <td class="text-cell"><a href="{% url 'message-detail' m.pk %}">{{ m.text|truncatechars:140 }}</a></td>
+      <td class="small">{{ m.get_author_role_display }}{% if not m.is_thread_root %}<br><span class="muted">follow-up</span>{% endif %}</td>
+      <td><span class="badge {% if m.analysis_status == 'completed' %}badge-good{% elif m.analysis_status == 'failed' %}badge-bad{% elif m.analysis_status == 'needs_review' %}badge-warn{% endif %}">{{ m.get_analysis_status_display }}</span></td>
+      <td class="small">{% for x in m.active_mentions %}<a href="{% url 'issue-detail' x.issue_id %}">{{ x.issue.title|truncatechars:42 }}</a><br>{% empty %}—{% endfor %}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% include "feedback/partials/pagination.html" %}
+  {% else %}<p class="empty">No messages match these filters.</p>{% endif %}
+</section>
+{% endblock %}

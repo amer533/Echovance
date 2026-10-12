@@ -1,0 +1,58 @@
+{% extends "feedback/base.html" %}
+{% block title %}{{ issue.title }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="small"><a href="{% url 'issues' %}">← Issues</a></p><h1>{{ issue.title }}</h1>
+  <p class="secondary small"><span class="mono">{{ issue.key }}</span> · {{ issue.mention_count }} customer conversations · first {{ issue.first_seen|date:"j M Y" }}, last {{ issue.last_seen|date:"j M Y" }}</p></div>
+  <span class="badge">{{ issue.get_status_display }}</span></div>
+{% include "feedback/partials/scope_toggle.html" %}
+
+<div class="grid grid-2">
+  <section class="card" aria-labelledby="tr-h"><div class="card-head"><h2 id="tr-h">Weekly trend</h2><a class="small" href="{% url 'messages' %}?issue={{ issue.pk }}">All messages →</a></div>
+    {% include "feedback/partials/trend_chart.html" with chart_label="Messages mentioning this issue per 7-day window" %}
+  </section>
+  <section class="card stack" aria-labelledby="dec-h">
+    <h2 id="dec-h">Decisions</h2>
+    {% if is_manager %}
+    <form class="inline" method="post" action="{% url 'issue-status' issue.pk %}">{% csrf_token %}
+      <div class="field"><label for="id_status">Issue status</label>{{ status_form.status }}</div>
+      <button class="btn" type="submit">Save status</button>
+    </form>
+    <p class="small muted">Issue status is a manager decision. Completing an action never marks an issue resolved automatically.</p>
+    <form method="post" action="{% url 'action-suggest' issue.pk %}">{% csrf_token %}
+      <button class="btn btn-primary" type="submit" data-busy-text="Asking the AI…">Suggest an action with AI</button>
+      <span class="small muted">Creates a <em>proposed</em> action only.</span>
+    </form>
+    <details><summary class="small">Propose an action manually</summary>
+      <form method="post" action="{% url 'action-create' issue.pk %}" style="margin-top:8px">{% csrf_token %}
+        {% for field in action_form %}<div class="field">{{ field.label_tag }}{{ field }}</div>{% endfor %}
+        <button class="btn" type="submit">Create proposal</button>
+      </form></details>
+    {% else %}<p class="muted">Managers can change status and propose actions.</p>{% endif %}
+  </section>
+</div>
+
+<div class="grid grid-2" style="margin-top:16px">
+  <section class="card"><h2>Alerts</h2>
+    {% for a in alerts %}<p><a href="{% url 'alert-detail' a.pk %}">{{ a.get_rule_display }} · {{ a.window_start|date:"j M" }}–{{ a.window_last_day|date:"j M Y" }}</a> <span class="badge {% if a.status == 'open' %}badge-warn{% endif %}">{{ a.get_status_display }}</span> <span class="badge{% if a.data_scope == 'demo' %} badge-mock{% endif %}">{{ a.data_scope }}</span>{% if a.is_stale %} <span class="badge badge-bad">stale</span>{% endif %}<br><span class="small secondary">{{ a.current_count }} messages (baseline mean {{ a.baseline_mean|floatformat:1 }})</span></p>
+    {% empty %}<p class="muted">No alerts for this issue.</p>{% endfor %}
+  </section>
+  <section class="card"><h2>Actions</h2>
+    {% for a in actions %}<p><a href="{% url 'action-detail' a.pk %}">{{ a.title }}</a> <span class="badge">{{ a.get_status_display }}</span>{% if a.ai_is_mock %} <span class="badge badge-mock">MOCK</span>{% endif %}{% if a.assignee %}<br><span class="small secondary">Assigned to {{ a.assignee.username }}</span>{% endif %}</p>
+    {% empty %}<p class="muted">No actions yet.</p>{% endfor %}
+  </section>
+</div>
+
+{% if suggestions %}
+<section class="card" style="margin-top:16px" aria-labelledby="gs-h"><h2 id="gs-h">Grouping suggestions awaiting review</h2>
+  {% for g in suggestions %}<p class="small">“{{ g.mention.evidence_text|truncatechars:90 }}” — currently <strong>{{ g.current_issue.title }}</strong>, may belong to <strong>{{ g.suggested_issue.title }}</strong> (similarity {{ g.similarity_suggested|floatformat:2 }} vs {{ g.similarity_current|floatformat:2 }}). <a href="{% url 'grouping' %}">Review →</a></p>{% endfor %}
+</section>
+{% endif %}
+
+<section class="card" style="margin-top:16px" aria-labelledby="ev-h"><h2 id="ev-h">Supporting evidence ({{ scope }} data)</h2>
+  {% for m in page %}
+    <div style="margin-bottom:14px"><p class="small secondary" style="margin:0"><a href="{% url 'message-detail' m.message_id %}">{{ m.message_created_at|date:"j M Y H:i" }} UTC · tweet {{ m.message.source_message_id }}</a> · {{ m.sentiment }}{% if m.source == 'mock' %} · <span class="badge badge-mock">MOCK</span>{% elif m.source == 'human' %} · <span class="badge badge-info">human</span>{% endif %}{% if m.original_issue_id %} · <span class="badge">regrouped</span>{% endif %}</p>
+      <div class="quote small">“{{ m.evidence_text }}”</div><p class="small" style="margin:0">{{ m.summary }}</p></div>
+  {% empty %}<p class="empty">No evidence.</p>{% endfor %}
+  {% include "feedback/partials/pagination.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,661 @@
+tweet_id,author_id,inbound,created_at,text,response_tweet_id,in_response_to_tweet_id
+700000001,900001,True,Mon Oct 02 00:00:00 +0000 2017,How many devices can I use at the same time?,700000002,
+700000002,SpotifyCares,False,Mon Oct 02 00:46:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000001
+700000003,900002,True,Mon Oct 02 01:31:05 +0000 2017,"Offline mode is not working since yesterday, nothing plays without wifi",,
+700000005,900003,True,Mon Oct 02 03:02:10 +0000 2017,Any plans for lyrics on the web player? Would be nice,700000006,
+700000006,SpotifyCares,False,Mon Oct 02 03:24:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000005
+700000007,900004,True,Mon Oct 02 04:33:16 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000009,900005,True,Mon Oct 02 06:04:21 +0000 2017,How many devices can I use at the same time?,700000010,
+700000010,SpotifyCares,False,Mon Oct 02 06:42:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000009
+700000011,900006,True,Mon Oct 02 07:35:27 +0000 2017,Where can I see my listening history?,,
+700000013,900007,True,Mon Oct 02 09:06:32 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",700000014,
+700000014,SpotifyCares,False,Mon Oct 02 09:29:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000013
+700000015,900008,True,Mon Oct 02 10:37:38 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000017,900009,True,Mon Oct 02 12:08:43 +0000 2017,"Best app for my morning walks, keep it up",700000018,
+700000018,SpotifyCares,False,Mon Oct 02 12:58:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000017
+700000019,900010,True,Mon Oct 02 13:39:49 +0000 2017,How many devices can I use at the same time?,,
+700000021,900011,True,Mon Oct 02 15:10:54 +0000 2017,How many devices can I use at the same time?,700000022,
+700000022,SpotifyCares,False,Mon Oct 02 15:31:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000021
+700000023,900012,True,Mon Oct 02 16:42:00 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000025,900013,True,Mon Oct 02 18:13:05 +0000 2017,How do I change the name on my profile?,700000026,
+700000026,SpotifyCares,False,Mon Oct 02 18:21:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000025
+700000027,900014,True,Mon Oct 02 19:44:10 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000029,900015,True,Mon Oct 02 21:15:16 +0000 2017,Where can I see my listening history?,700000030,
+700000030,SpotifyCares,False,Mon Oct 02 21:26:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000029
+700000031,900016,True,Mon Oct 02 22:46:21 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000033,900017,True,Tue Oct 03 00:17:27 +0000 2017,How do I change the name on my profile?,700000034,
+700000034,SpotifyCares,False,Tue Oct 03 00:23:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000033
+700000035,900018,True,Tue Oct 03 01:48:32 +0000 2017,How many devices can I use at the same time?,,
+700000037,900019,True,Tue Oct 03 03:19:38 +0000 2017,"Thanks for the quick answer yesterday, great support",700000038,
+700000038,SpotifyCares,False,Tue Oct 03 04:08:38 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000037
+700000039,900020,True,Tue Oct 03 04:50:43 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000041,900021,True,Tue Oct 03 06:21:49 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000042,
+700000042,SpotifyCares,False,Tue Oct 03 07:05:49 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000041
+700000043,900022,True,Tue Oct 03 07:52:54 +0000 2017,How many devices can I use at the same time?,,
+700000045,900023,True,Tue Oct 03 09:24:00 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000046,
+700000046,SpotifyCares,False,Tue Oct 03 09:47:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000045
+700000047,900024,True,Tue Oct 03 10:55:05 +0000 2017,How many devices can I use at the same time?,,
+700000049,900025,True,Tue Oct 03 12:26:10 +0000 2017,Where can I see my listening history?,700000050,
+700000050,SpotifyCares,False,Tue Oct 03 13:12:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000049
+700000051,900026,True,Tue Oct 03 13:57:16 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000053,900027,True,Tue Oct 03 15:28:21 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",700000054,
+700000054,SpotifyCares,False,Tue Oct 03 15:40:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000053
+700000055,900028,True,Tue Oct 03 16:59:27 +0000 2017,How many devices can I use at the same time?,,
+700000057,900029,True,Tue Oct 03 18:30:32 +0000 2017,How do I change the name on my profile?,700000058,
+700000058,SpotifyCares,False,Tue Oct 03 19:17:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000057
+700000059,900030,True,Tue Oct 03 20:01:38 +0000 2017,How do I change the name on my profile?,,
+700000061,900031,True,Tue Oct 03 21:32:43 +0000 2017,How many devices can I use at the same time?,700000062,
+700000062,SpotifyCares,False,Tue Oct 03 22:15:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000061
+700000063,900032,True,Tue Oct 03 23:03:49 +0000 2017,Where can I see my listening history?,,
+700000065,900033,True,Wed Oct 04 00:34:54 +0000 2017,How many devices can I use at the same time?,700000066,
+700000066,SpotifyCares,False,Wed Oct 04 01:21:54 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000065
+700000067,900034,True,Wed Oct 04 02:06:00 +0000 2017,"The app keeps crashing every time I open my library, please help",,
+700000069,900035,True,Wed Oct 04 03:37:05 +0000 2017,"Please add a sleep timer to the desktop app, would be great",700000070,
+700000070,SpotifyCares,False,Wed Oct 04 04:20:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000069
+700000071,900036,True,Wed Oct 04 05:08:10 +0000 2017,Where can I see my listening history?,,
+700000073,900037,True,Wed Oct 04 06:39:16 +0000 2017,How do I change the name on my profile?,700000074,
+700000074,SpotifyCares,False,Wed Oct 04 07:26:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000073
+700000075,900038,True,Wed Oct 04 08:10:21 +0000 2017,Where can I see my listening history?,,
+700000077,900039,True,Wed Oct 04 09:41:27 +0000 2017,Is it possible to share a playlist with a friend by link?,700000078,
+700000078,SpotifyCares,False,Wed Oct 04 10:28:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000077
+700000079,900040,True,Wed Oct 04 11:12:32 +0000 2017,Where can I see my listening history?,,
+700000081,900041,True,Wed Oct 04 12:43:38 +0000 2017,Is it possible to share a playlist with a friend by link?,700000082,
+700000082,SpotifyCares,False,Wed Oct 04 12:50:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000081
+700000083,900042,True,Wed Oct 04 14:14:43 +0000 2017,"Love the new playlist you made for me this week, thank you!",,
+700000085,900043,True,Wed Oct 04 15:45:49 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",700000086,
+700000086,SpotifyCares,False,Wed Oct 04 16:35:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000085
+700000087,900044,True,Wed Oct 04 17:16:54 +0000 2017,How many devices can I use at the same time?,,
+700000089,900045,True,Wed Oct 04 18:48:00 +0000 2017,"Love the new playlist you made for me this week, thank you!",700000090,
+700000090,SpotifyCares,False,Wed Oct 04 19:22:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000089
+700000091,900046,True,Wed Oct 04 20:19:05 +0000 2017,"Thanks for the quick answer yesterday, great support",,
+700000093,900047,True,Wed Oct 04 21:50:10 +0000 2017,Is it possible to share a playlist with a friend by link?,700000094,
+700000094,SpotifyCares,False,Wed Oct 04 22:11:10 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000093
+700000095,900048,True,Wed Oct 04 23:21:16 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000097,900049,True,Thu Oct 05 00:52:21 +0000 2017,Is it possible to share a playlist with a friend by link?,700000098,
+700000098,SpotifyCares,False,Thu Oct 05 01:23:21 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000097
+700000099,900050,True,Thu Oct 05 02:23:27 +0000 2017,How many devices can I use at the same time?,,
+700000101,900051,True,Thu Oct 05 03:54:32 +0000 2017,How many devices can I use at the same time?,700000102,
+700000102,SpotifyCares,False,Thu Oct 05 04:13:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000101
+700000103,900052,True,Thu Oct 05 05:25:38 +0000 2017,How many devices can I use at the same time?,,
+700000105,900053,True,Thu Oct 05 06:56:43 +0000 2017,How do I change the name on my profile?,700000106,
+700000106,SpotifyCares,False,Thu Oct 05 07:25:43 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000105
+700000107,900054,True,Thu Oct 05 08:27:49 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000109,900055,True,Thu Oct 05 09:58:54 +0000 2017,How many devices can I use at the same time?,700000110,
+700000110,SpotifyCares,False,Thu Oct 05 10:38:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000109
+700000111,900056,True,Thu Oct 05 11:30:00 +0000 2017,How do I change the name on my profile?,,
+700000113,900057,True,Thu Oct 05 13:01:05 +0000 2017,"I was charged twice this month, please fix this",700000114,
+700000114,SpotifyCares,False,Thu Oct 05 13:45:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000113
+700000115,900058,True,Thu Oct 05 14:32:10 +0000 2017,"Keep getting logged out on my phone every single day, why?",,
+700000117,900059,True,Thu Oct 05 16:03:16 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",700000118,
+700000118,SpotifyCares,False,Thu Oct 05 16:34:16 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000117
+700000119,900060,True,Thu Oct 05 17:34:21 +0000 2017,How do I change the name on my profile?,,
+700000121,900061,True,Thu Oct 05 19:05:27 +0000 2017,Where can I see my listening history?,700000122,
+700000122,SpotifyCares,False,Thu Oct 05 19:20:27 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000121
+700000123,900062,True,Thu Oct 05 20:36:32 +0000 2017,"Keep getting logged out on my phone every single day, why?",,
+700000125,900063,True,Thu Oct 05 22:07:38 +0000 2017,Why is half of this album greyed out now? I can't play it,700000126,
+700000126,SpotifyCares,False,Thu Oct 05 22:57:38 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000125
+700000127,900064,True,Thu Oct 05 23:38:43 +0000 2017,How many devices can I use at the same time?,,
+700000129,900065,True,Fri Oct 06 01:09:49 +0000 2017,"Love the new playlist you made for me this week, thank you!",700000130,
+700000130,SpotifyCares,False,Fri Oct 06 01:44:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000129
+700000131,900066,True,Fri Oct 06 02:40:54 +0000 2017,How many devices can I use at the same time?,,
+700000133,900067,True,Fri Oct 06 04:12:00 +0000 2017,Is it possible to share a playlist with a friend by link?,700000134,
+700000134,SpotifyCares,False,Fri Oct 06 04:30:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000133
+700000135,900068,True,Fri Oct 06 05:43:05 +0000 2017,Where can I see my listening history?,,
+700000137,900069,True,Fri Oct 06 07:14:10 +0000 2017,Can you add an option to hide podcasts from home?,700000138,
+700000138,SpotifyCares,False,Fri Oct 06 07:35:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000137
+700000139,900070,True,Fri Oct 06 08:45:16 +0000 2017,Where can I see my listening history?,,
+700000141,900071,True,Fri Oct 06 10:16:21 +0000 2017,How many devices can I use at the same time?,700000142,
+700000142,SpotifyCares,False,Fri Oct 06 11:02:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000141
+700000143,900072,True,Fri Oct 06 11:47:27 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000145,900073,True,Fri Oct 06 13:18:32 +0000 2017,"Keep getting logged out on my phone every single day, why?",700000146,
+700000146,SpotifyCares,False,Fri Oct 06 14:01:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000145
+700000147,900074,True,Fri Oct 06 14:49:38 +0000 2017,"Love the new playlist you made for me this week, thank you!",,
+700000149,900075,True,Fri Oct 06 16:20:43 +0000 2017,Where can I see my listening history?,700000150,
+700000150,SpotifyCares,False,Fri Oct 06 16:30:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000149
+700000151,900076,True,Fri Oct 06 17:51:49 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000153,900077,True,Fri Oct 06 19:22:54 +0000 2017,Where can I see my listening history?,700000154,
+700000154,SpotifyCares,False,Fri Oct 06 19:45:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000153
+700000155,900078,True,Fri Oct 06 20:54:00 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000157,900079,True,Fri Oct 06 22:25:05 +0000 2017,"Keep getting logged out on my phone every single day, why?",700000158,
+700000158,SpotifyCares,False,Fri Oct 06 23:10:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000157
+700000159,900080,True,Fri Oct 06 23:56:10 +0000 2017,"I was charged twice this month, please fix this",,
+700000161,900081,True,Sat Oct 07 01:27:16 +0000 2017,"Offline mode is not working since yesterday, nothing plays without wifi",700000162,
+700000162,SpotifyCares,False,Sat Oct 07 01:50:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000161
+700000163,900082,True,Sat Oct 07 02:58:21 +0000 2017,Where can I see my listening history?,,
+700000165,900083,True,Sat Oct 07 04:29:27 +0000 2017,Where can I see my listening history?,700000166,
+700000166,SpotifyCares,False,Sat Oct 07 04:47:27 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000165
+700000167,900084,True,Sat Oct 07 06:00:32 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000169,900085,True,Sat Oct 07 07:31:38 +0000 2017,"Desktop app crashes when I try to search, any fix?",700000170,
+700000170,SpotifyCares,False,Sat Oct 07 07:41:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000169
+700000171,900086,True,Sat Oct 07 09:02:43 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",,
+700000173,900087,True,Sat Oct 07 10:33:49 +0000 2017,How do I change the name on my profile?,700000174,
+700000174,SpotifyCares,False,Sat Oct 07 10:41:49 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000173
+700000175,900088,True,Sat Oct 07 12:04:54 +0000 2017,How many devices can I use at the same time?,,
+700000177,900089,True,Sat Oct 07 13:36:00 +0000 2017,How many devices can I use at the same time?,700000178,
+700000178,SpotifyCares,False,Sat Oct 07 14:18:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000177
+700000179,900090,True,Sat Oct 07 15:07:05 +0000 2017,How do I change the name on my profile?,,
+700000181,900091,True,Sat Oct 07 16:38:10 +0000 2017,How many devices can I use at the same time?,700000182,
+700000182,SpotifyCares,False,Sat Oct 07 16:59:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000181
+700000183,900092,True,Sat Oct 07 18:09:16 +0000 2017,How do I change the name on my profile?,,
+700000185,900093,True,Sat Oct 07 19:40:21 +0000 2017,Is it possible to share a playlist with a friend by link?,700000186,
+700000186,SpotifyCares,False,Sat Oct 07 20:25:21 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000185
+700000187,900094,True,Sat Oct 07 21:11:27 +0000 2017,How many devices can I use at the same time?,,
+700000189,900095,True,Sat Oct 07 22:42:32 +0000 2017,Where can I see my listening history?,700000190,
+700000190,SpotifyCares,False,Sat Oct 07 23:05:32 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000189
+700000191,900096,True,Sun Oct 08 00:13:38 +0000 2017,How do I change the name on my profile?,,
+700000193,900097,True,Sun Oct 08 01:44:43 +0000 2017,Is it possible to share a playlist with a friend by link?,700000194,
+700000194,SpotifyCares,False,Sun Oct 08 01:54:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000193
+700000195,900098,True,Sun Oct 08 03:15:49 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",,
+700000197,900099,True,Sun Oct 08 04:46:54 +0000 2017,Any plans for lyrics on the web player? Would be nice,700000198,
+700000198,SpotifyCares,False,Sun Oct 08 05:10:54 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000197
+700000199,900100,True,Sun Oct 08 06:18:00 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000201,900101,True,Sun Oct 08 07:49:05 +0000 2017,"Thanks for the quick answer yesterday, great support",700000202,
+700000202,SpotifyCares,False,Sun Oct 08 08:09:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000201
+700000203,900102,True,Sun Oct 08 09:20:10 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",,
+700000205,900103,True,Sun Oct 08 10:51:16 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000206,
+700000206,SpotifyCares,False,Sun Oct 08 11:41:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000205
+700000207,900104,True,Sun Oct 08 12:22:21 +0000 2017,How many devices can I use at the same time?,,
+700000209,900105,True,Sun Oct 08 13:53:27 +0000 2017,Can you add an option to hide podcasts from home?,700000210,
+700000210,SpotifyCares,False,Sun Oct 08 14:20:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000209
+700000211,900106,True,Sun Oct 08 15:24:32 +0000 2017,How many devices can I use at the same time?,,
+700000213,900107,True,Sun Oct 08 16:55:38 +0000 2017,"Just noticed I got charged again for a plan I already paid, what is going on?",700000214,
+700000214,SpotifyCares,False,Sun Oct 08 17:04:38 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000213
+700000215,900108,True,Sun Oct 08 18:26:43 +0000 2017,"Keep getting logged out on my phone every single day, why?",,
+700000217,900109,True,Sun Oct 08 19:57:49 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",700000218,
+700000218,SpotifyCares,False,Sun Oct 08 20:46:49 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000217
+700000219,900110,True,Sun Oct 08 21:28:54 +0000 2017,Where can I see my listening history?,,
+700000221,900111,True,Mon Oct 09 00:00:00 +0000 2017,"Love the new playlist you made for me this week, thank you!",700000222,
+700000222,SpotifyCares,False,Mon Oct 09 00:36:00 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000221
+700000223,900112,True,Mon Oct 09 01:31:05 +0000 2017,"Love the new playlist you made for me this week, thank you!",,
+700000225,900113,True,Mon Oct 09 03:02:10 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000226,
+700000226,SpotifyCares,False,Mon Oct 09 03:16:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000225
+700000227,900114,True,Mon Oct 09 04:33:16 +0000 2017,How many devices can I use at the same time?,,
+700000229,900115,True,Mon Oct 09 06:04:21 +0000 2017,How do I change the name on my profile?,700000230,
+700000230,SpotifyCares,False,Mon Oct 09 06:53:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000229
+700000231,900116,True,Mon Oct 09 07:35:27 +0000 2017,How many devices can I use at the same time?,,
+700000233,900117,True,Mon Oct 09 09:06:32 +0000 2017,How do I change the name on my profile?,700000234,
+700000234,SpotifyCares,False,Mon Oct 09 09:29:32 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000233
+700000235,900118,True,Mon Oct 09 10:37:38 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000237,900119,True,Mon Oct 09 12:08:43 +0000 2017,"Love the new playlist you made for me this week, thank you!",700000238,
+700000238,SpotifyCares,False,Mon Oct 09 12:15:43 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000237
+700000239,900120,True,Mon Oct 09 13:39:49 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",,
+700000241,900121,True,Mon Oct 09 15:10:54 +0000 2017,How many devices can I use at the same time?,700000242,
+700000242,SpotifyCares,False,Mon Oct 09 15:48:54 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000241
+700000243,900122,True,Mon Oct 09 16:42:00 +0000 2017,"Please add a sleep timer to the desktop app, would be great",,
+700000245,900123,True,Mon Oct 09 18:13:05 +0000 2017,Can you add an option to hide podcasts from home?,700000246,
+700000246,SpotifyCares,False,Mon Oct 09 18:47:05 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000245
+700000247,900124,True,Mon Oct 09 19:44:10 +0000 2017,How many devices can I use at the same time?,,
+700000249,900125,True,Mon Oct 09 21:15:16 +0000 2017,How many devices can I use at the same time?,700000250,
+700000250,SpotifyCares,False,Mon Oct 09 21:29:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000249
+700000251,900126,True,Mon Oct 09 22:46:21 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000253,900127,True,Tue Oct 10 00:17:27 +0000 2017,Is it possible to share a playlist with a friend by link?,700000254,
+700000254,SpotifyCares,False,Tue Oct 10 01:02:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000253
+700000255,900128,True,Tue Oct 10 01:48:32 +0000 2017,How many devices can I use at the same time?,,
+700000257,900129,True,Tue Oct 10 03:19:38 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",700000258,
+700000258,SpotifyCares,False,Tue Oct 10 03:27:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000257
+700000259,900130,True,Tue Oct 10 04:50:43 +0000 2017,"Thanks for the quick answer yesterday, great support",,
+700000261,900131,True,Tue Oct 10 06:21:49 +0000 2017,How do I change the name on my profile?,700000262,
+700000262,SpotifyCares,False,Tue Oct 10 06:58:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000261
+700000263,900132,True,Tue Oct 10 07:52:54 +0000 2017,Where can I see my listening history?,,
+700000265,900133,True,Tue Oct 10 09:24:00 +0000 2017,Is it possible to share a playlist with a friend by link?,700000266,
+700000266,SpotifyCares,False,Tue Oct 10 09:55:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000265
+700000267,900134,True,Tue Oct 10 10:55:05 +0000 2017,How many devices can I use at the same time?,,
+700000269,900135,True,Tue Oct 10 12:26:10 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000270,
+700000270,SpotifyCares,False,Tue Oct 10 13:00:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000269
+700000271,900136,True,Tue Oct 10 13:57:16 +0000 2017,How many devices can I use at the same time?,,
+700000273,900137,True,Tue Oct 10 15:28:21 +0000 2017,How do I change the name on my profile?,700000274,
+700000274,SpotifyCares,False,Tue Oct 10 16:16:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000273
+700000275,900138,True,Tue Oct 10 16:59:27 +0000 2017,"Thanks for the quick answer yesterday, great support",,
+700000277,900139,True,Tue Oct 10 18:30:32 +0000 2017,"Thanks for the quick answer yesterday, great support",700000278,
+700000278,SpotifyCares,False,Tue Oct 10 19:19:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000277
+700000279,900140,True,Tue Oct 10 20:01:38 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000281,900141,True,Tue Oct 10 21:32:43 +0000 2017,"My offline playlists won't play on the train any more, help",700000282,
+700000282,SpotifyCares,False,Tue Oct 10 22:00:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000281
+700000283,900142,True,Tue Oct 10 23:03:49 +0000 2017,"Please add a sleep timer to the desktop app, would be great",,
+700000285,900143,True,Wed Oct 11 00:34:54 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000286,
+700000286,SpotifyCares,False,Wed Oct 11 01:00:54 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000285
+700000287,900144,True,Wed Oct 11 02:06:00 +0000 2017,"Thanks for the quick answer yesterday, great support",,
+700000289,900145,True,Wed Oct 11 03:37:05 +0000 2017,"My offline playlists won't play on the train any more, help",700000290,
+700000290,SpotifyCares,False,Wed Oct 11 04:00:05 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000289
+700000291,900146,True,Wed Oct 11 05:08:10 +0000 2017,How many devices can I use at the same time?,,
+700000293,900147,True,Wed Oct 11 06:39:16 +0000 2017,"Keep getting logged out on my phone every single day, why?",700000294,
+700000294,SpotifyCares,False,Wed Oct 11 07:04:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000293
+700000295,900148,True,Wed Oct 11 08:10:21 +0000 2017,How do I change the name on my profile?,,
+700000297,900149,True,Wed Oct 11 09:41:27 +0000 2017,Where can I see my listening history?,700000298,
+700000298,SpotifyCares,False,Wed Oct 11 09:48:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000297
+700000299,900150,True,Wed Oct 11 11:12:32 +0000 2017,"My offline playlists won't play on the train any more, help",,
+700000301,900151,True,Wed Oct 11 12:43:38 +0000 2017,How do I change the name on my profile?,700000302,
+700000302,SpotifyCares,False,Wed Oct 11 12:59:38 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000301
+700000303,900152,True,Wed Oct 11 14:14:43 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000305,900153,True,Wed Oct 11 15:45:49 +0000 2017,Is it possible to share a playlist with a friend by link?,700000306,
+700000306,SpotifyCares,False,Wed Oct 11 16:12:49 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000305
+700000307,900154,True,Wed Oct 11 17:16:54 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000309,900155,True,Wed Oct 11 18:48:00 +0000 2017,"Please add a sleep timer to the desktop app, would be great",700000310,
+700000310,SpotifyCares,False,Wed Oct 11 19:27:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000309
+700000311,900156,True,Wed Oct 11 20:19:05 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",,
+700000313,900157,True,Wed Oct 11 21:50:10 +0000 2017,"Wrong amount taken from my card this month, can you check my account?",700000314,
+700000314,SpotifyCares,False,Wed Oct 11 22:23:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000313
+700000315,900158,True,Wed Oct 11 23:21:16 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000317,900159,True,Thu Oct 12 00:52:21 +0000 2017,Where can I see my listening history?,700000318,
+700000318,SpotifyCares,False,Thu Oct 12 01:06:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000317
+700000319,900160,True,Thu Oct 12 02:23:27 +0000 2017,"I was charged twice this month, please fix this",,
+700000321,900161,True,Thu Oct 12 03:54:32 +0000 2017,How many devices can I use at the same time?,700000322,
+700000322,SpotifyCares,False,Thu Oct 12 04:43:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000321
+700000323,900162,True,Thu Oct 12 05:25:38 +0000 2017,How many devices can I use at the same time?,,
+700000325,900163,True,Thu Oct 12 06:56:43 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",700000326,
+700000326,SpotifyCares,False,Thu Oct 12 07:28:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000325
+700000327,900164,True,Thu Oct 12 08:27:49 +0000 2017,Where can I see my listening history?,,
+700000329,900165,True,Thu Oct 12 09:58:54 +0000 2017,Is it possible to share a playlist with a friend by link?,700000330,
+700000330,SpotifyCares,False,Thu Oct 12 10:40:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000329
+700000331,900166,True,Thu Oct 12 11:30:00 +0000 2017,Where can I see my listening history?,,
+700000333,900167,True,Thu Oct 12 13:01:05 +0000 2017,"The app keeps crashing every time I open my library, please help",700000334,
+700000334,SpotifyCares,False,Thu Oct 12 13:43:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000333
+700000335,900168,True,Thu Oct 12 14:32:10 +0000 2017,How do I change the name on my profile?,,
+700000337,900169,True,Thu Oct 12 16:03:16 +0000 2017,How do I change the name on my profile?,700000338,
+700000338,SpotifyCares,False,Thu Oct 12 16:33:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000337
+700000339,900170,True,Thu Oct 12 17:34:21 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000341,900171,True,Thu Oct 12 19:05:27 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",700000342,
+700000342,SpotifyCares,False,Thu Oct 12 19:32:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000341
+700000343,900172,True,Thu Oct 12 20:36:32 +0000 2017,How many devices can I use at the same time?,,
+700000345,900173,True,Thu Oct 12 22:07:38 +0000 2017,Is it possible to share a playlist with a friend by link?,700000346,
+700000346,SpotifyCares,False,Thu Oct 12 22:22:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000345
+700000347,900174,True,Thu Oct 12 23:38:43 +0000 2017,"Offline mode is not working since yesterday, nothing plays without wifi",,
+700000349,900175,True,Fri Oct 13 01:09:49 +0000 2017,Where can I see my listening history?,700000350,
+700000350,SpotifyCares,False,Fri Oct 13 01:36:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000349
+700000351,900176,True,Fri Oct 13 02:40:54 +0000 2017,Where can I see my listening history?,,
+700000353,900177,True,Fri Oct 13 04:12:00 +0000 2017,"I can't log in on my laptop, it just spins forever",700000354,
+700000354,SpotifyCares,False,Fri Oct 13 04:44:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000353
+700000355,900178,True,Fri Oct 13 05:43:05 +0000 2017,"My offline playlists won't play on the train any more, help",,
+700000357,900179,True,Fri Oct 13 07:14:10 +0000 2017,Sign in is not working on the desktop app for me,700000358,
+700000358,SpotifyCares,False,Fri Oct 13 07:44:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000357
+700000359,900180,True,Fri Oct 13 08:45:16 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000361,900181,True,Fri Oct 13 10:16:21 +0000 2017,Is it possible to share a playlist with a friend by link?,700000362,
+700000362,SpotifyCares,False,Fri Oct 13 11:03:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000361
+700000363,900182,True,Fri Oct 13 11:47:27 +0000 2017,Where can I see my listening history?,,
+700000365,900183,True,Fri Oct 13 13:18:32 +0000 2017,Where can I see my listening history?,700000366,
+700000366,SpotifyCares,False,Fri Oct 13 13:22:32 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000365
+700000367,900184,True,Fri Oct 13 14:49:38 +0000 2017,How many devices can I use at the same time?,,
+700000369,900185,True,Fri Oct 13 16:20:43 +0000 2017,How many devices can I use at the same time?,700000370,
+700000370,SpotifyCares,False,Fri Oct 13 16:33:43 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000369
+700000371,900186,True,Fri Oct 13 17:51:49 +0000 2017,Where can I see my listening history?,,
+700000373,900187,True,Fri Oct 13 19:22:54 +0000 2017,How do I change the name on my profile?,700000374,
+700000374,SpotifyCares,False,Fri Oct 13 19:27:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000373
+700000375,900188,True,Fri Oct 13 20:54:00 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000377,900189,True,Fri Oct 13 22:25:05 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000378,
+700000378,SpotifyCares,False,Fri Oct 13 23:00:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000377
+700000379,900190,True,Fri Oct 13 23:56:10 +0000 2017,"Keep getting logged out on my phone every single day, why?",,
+700000381,900191,True,Sat Oct 14 01:27:16 +0000 2017,Where can I see my listening history?,700000382,
+700000382,SpotifyCares,False,Sat Oct 14 01:32:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000381
+700000383,900192,True,Sat Oct 14 02:58:21 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000385,900193,True,Sat Oct 14 04:29:27 +0000 2017,How many devices can I use at the same time?,700000386,
+700000386,SpotifyCares,False,Sat Oct 14 05:00:27 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000385
+700000387,900194,True,Sat Oct 14 06:00:32 +0000 2017,"The app keeps crashing every time I open my library, please help",,
+700000389,900195,True,Sat Oct 14 07:31:38 +0000 2017,Is it possible to share a playlist with a friend by link?,700000390,
+700000390,SpotifyCares,False,Sat Oct 14 08:20:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000389
+700000391,900196,True,Sat Oct 14 09:02:43 +0000 2017,Where can I see my listening history?,,
+700000393,900197,True,Sat Oct 14 10:33:49 +0000 2017,Why is half of this album greyed out now? I can't play it,700000394,
+700000394,SpotifyCares,False,Sat Oct 14 11:04:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000393
+700000395,900198,True,Sat Oct 14 12:04:54 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000397,900199,True,Sat Oct 14 13:36:00 +0000 2017,"I was charged twice this month, please fix this",700000398,
+700000398,SpotifyCares,False,Sat Oct 14 14:21:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000397
+700000399,900200,True,Sat Oct 14 15:07:05 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000401,900201,True,Sat Oct 14 16:38:10 +0000 2017,Is it possible to share a playlist with a friend by link?,700000402,
+700000402,SpotifyCares,False,Sat Oct 14 17:16:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000401
+700000403,900202,True,Sat Oct 14 18:09:16 +0000 2017,How do I change the name on my profile?,,
+700000405,900203,True,Sat Oct 14 19:40:21 +0000 2017,"Best app for my morning walks, keep it up",700000406,
+700000406,SpotifyCares,False,Sat Oct 14 20:18:21 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000405
+700000407,900204,True,Sat Oct 14 21:11:27 +0000 2017,How do I change the name on my profile?,,
+700000409,900205,True,Sat Oct 14 22:42:32 +0000 2017,Where can I see my listening history?,700000410,
+700000410,SpotifyCares,False,Sat Oct 14 22:58:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000409
+700000411,900206,True,Sun Oct 15 00:13:38 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000413,900207,True,Sun Oct 15 01:44:43 +0000 2017,How do I change the name on my profile?,700000414,
+700000414,SpotifyCares,False,Sun Oct 15 01:53:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000413
+700000415,900208,True,Sun Oct 15 03:15:49 +0000 2017,Any plans for lyrics on the web player? Would be nice,,
+700000417,900209,True,Sun Oct 15 04:46:54 +0000 2017,How many devices can I use at the same time?,700000418,
+700000418,SpotifyCares,False,Sun Oct 15 05:17:54 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000417
+700000419,900210,True,Sun Oct 15 06:18:00 +0000 2017,How do I change the name on my profile?,,
+700000421,900211,True,Sun Oct 15 07:49:05 +0000 2017,How many devices can I use at the same time?,700000422,
+700000422,SpotifyCares,False,Sun Oct 15 07:54:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000421
+700000423,900212,True,Sun Oct 15 09:20:10 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000425,900213,True,Sun Oct 15 10:51:16 +0000 2017,Is it possible to share a playlist with a friend by link?,700000426,
+700000426,SpotifyCares,False,Sun Oct 15 11:34:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000425
+700000427,900214,True,Sun Oct 15 12:22:21 +0000 2017,Where can I see my listening history?,,
+700000429,900215,True,Sun Oct 15 13:53:27 +0000 2017,Is it possible to share a playlist with a friend by link?,700000430,
+700000430,SpotifyCares,False,Sun Oct 15 14:32:27 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000429
+700000431,900216,True,Sun Oct 15 15:24:32 +0000 2017,Sign in is not working on the desktop app for me,,
+700000433,900217,True,Sun Oct 15 16:55:38 +0000 2017,Is it possible to share a playlist with a friend by link?,700000434,
+700000434,SpotifyCares,False,Sun Oct 15 17:03:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000433
+700000435,900218,True,Sun Oct 15 18:26:43 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000437,900219,True,Sun Oct 15 19:57:49 +0000 2017,How many devices can I use at the same time?,700000438,
+700000438,SpotifyCares,False,Sun Oct 15 20:44:49 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000437
+700000439,900220,True,Sun Oct 15 21:28:54 +0000 2017,How many devices can I use at the same time?,,
+700000441,900221,True,Mon Oct 16 00:00:00 +0000 2017,Where can I see my listening history?,700000442,
+700000442,SpotifyCares,False,Mon Oct 16 00:37:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000441
+700000443,900222,True,Mon Oct 16 01:31:05 +0000 2017,"I can't log in on my laptop, it just spins forever",,
+700000445,900223,True,Mon Oct 16 03:02:10 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",700000446,
+700000446,SpotifyCares,False,Mon Oct 16 03:29:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000445
+700000447,900224,True,Mon Oct 16 04:33:16 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000449,900225,True,Mon Oct 16 06:04:21 +0000 2017,Where can I see my listening history?,700000450,
+700000450,SpotifyCares,False,Mon Oct 16 06:25:21 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000449
+700000451,900226,True,Mon Oct 16 07:35:27 +0000 2017,Where can I see my listening history?,,
+700000453,900227,True,Mon Oct 16 09:06:32 +0000 2017,Where can I see my listening history?,700000454,
+700000454,SpotifyCares,False,Mon Oct 16 09:31:32 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000453
+700000455,900228,True,Mon Oct 16 10:37:38 +0000 2017,How do I change the name on my profile?,,
+700000457,900229,True,Mon Oct 16 12:08:43 +0000 2017,"Best app for my morning walks, keep it up",700000458,
+700000458,SpotifyCares,False,Mon Oct 16 12:13:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000457
+700000459,900230,True,Mon Oct 16 13:39:49 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000461,900231,True,Mon Oct 16 15:10:54 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",700000462,
+700000462,SpotifyCares,False,Mon Oct 16 15:22:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000461
+700000463,900232,True,Mon Oct 16 16:42:00 +0000 2017,Where can I see my listening history?,,
+700000465,900233,True,Mon Oct 16 18:13:05 +0000 2017,Where can I see my listening history?,700000466,
+700000466,SpotifyCares,False,Mon Oct 16 18:22:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000465
+700000467,900234,True,Mon Oct 16 19:44:10 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000469,900235,True,Mon Oct 16 21:15:16 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",700000470,
+700000470,SpotifyCares,False,Mon Oct 16 21:23:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000469
+700000471,900236,True,Mon Oct 16 22:46:21 +0000 2017,Can you add an option to hide podcasts from home?,,
+700000473,900237,True,Tue Oct 17 00:17:27 +0000 2017,Is it possible to share a playlist with a friend by link?,700000474,
+700000474,SpotifyCares,False,Tue Oct 17 00:59:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000473
+700000475,900238,True,Tue Oct 17 01:48:32 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000477,900239,True,Tue Oct 17 03:19:38 +0000 2017,Where can I see my listening history?,700000478,
+700000478,SpotifyCares,False,Tue Oct 17 04:08:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000477
+700000479,900240,True,Tue Oct 17 04:50:43 +0000 2017,How many devices can I use at the same time?,,
+700000481,900241,True,Tue Oct 17 06:21:49 +0000 2017,How do I change the name on my profile?,700000482,
+700000482,SpotifyCares,False,Tue Oct 17 07:00:49 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000481
+700000483,900242,True,Tue Oct 17 07:52:54 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",,
+700000485,900243,True,Tue Oct 17 09:24:00 +0000 2017,Is it possible to share a playlist with a friend by link?,700000486,
+700000486,SpotifyCares,False,Tue Oct 17 10:10:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000485
+700000487,900244,True,Tue Oct 17 10:55:05 +0000 2017,Where can I see my listening history?,,
+700000489,900245,True,Tue Oct 17 12:26:10 +0000 2017,Any plans for lyrics on the web player? Would be nice,700000490,
+700000490,SpotifyCares,False,Tue Oct 17 12:30:10 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000489
+700000491,900246,True,Tue Oct 17 13:57:16 +0000 2017,How do I change the name on my profile?,,
+700000493,900247,True,Tue Oct 17 15:28:21 +0000 2017,How do I change the name on my profile?,700000494,
+700000494,SpotifyCares,False,Tue Oct 17 16:04:21 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000493
+700000495,900248,True,Tue Oct 17 16:59:27 +0000 2017,Where can I see my listening history?,,
+700000497,900249,True,Tue Oct 17 18:30:32 +0000 2017,How many devices can I use at the same time?,700000498,
+700000498,SpotifyCares,False,Tue Oct 17 19:10:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000497
+700000499,900250,True,Tue Oct 17 20:01:38 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000501,900251,True,Tue Oct 17 21:32:43 +0000 2017,Where can I see my listening history?,700000502,
+700000502,SpotifyCares,False,Tue Oct 17 21:50:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000501
+700000503,900252,True,Tue Oct 17 23:03:49 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000505,900253,True,Wed Oct 18 00:34:54 +0000 2017,How many devices can I use at the same time?,700000506,
+700000506,SpotifyCares,False,Wed Oct 18 00:41:54 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000505
+700000507,900254,True,Wed Oct 18 02:06:00 +0000 2017,My bank shows I was double charged on the 3rd. Please sort this out,,
+700000509,900255,True,Wed Oct 18 03:37:05 +0000 2017,Is it possible to share a playlist with a friend by link?,700000510,
+700000510,SpotifyCares,False,Wed Oct 18 04:09:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000509
+700000511,900256,True,Wed Oct 18 05:08:10 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",,
+700000513,900257,True,Wed Oct 18 06:39:16 +0000 2017,Is it possible to share a playlist with a friend by link?,700000514,
+700000514,SpotifyCares,False,Wed Oct 18 07:22:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000513
+700000515,900258,True,Wed Oct 18 08:10:21 +0000 2017,Can you add an option to hide podcasts from home?,,
+700000517,900259,True,Wed Oct 18 09:41:27 +0000 2017,Where can I see my listening history?,700000518,
+700000518,SpotifyCares,False,Wed Oct 18 09:47:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000517
+700000519,900260,True,Wed Oct 18 11:12:32 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000521,900261,True,Wed Oct 18 12:43:38 +0000 2017,How do I change the name on my profile?,700000522,
+700000522,SpotifyCares,False,Wed Oct 18 12:55:38 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000521
+700000523,900262,True,Wed Oct 18 14:14:43 +0000 2017,"My offline playlists won't play on the train any more, help",,
+700000525,900263,True,Wed Oct 18 15:45:49 +0000 2017,Can you add an option to hide podcasts from home?,700000526,
+700000526,SpotifyCares,False,Wed Oct 18 15:55:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000525
+700000527,900264,True,Wed Oct 18 17:16:54 +0000 2017,Why have I been charged twice for one month? This is not ok,,
+700000529,900265,True,Wed Oct 18 18:48:00 +0000 2017,How do I change the name on my profile?,700000530,
+700000530,SpotifyCares,False,Wed Oct 18 19:26:00 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000529
+700000531,900266,True,Wed Oct 18 20:19:05 +0000 2017,"Love the new playlist you made for me this week, thank you!",,
+700000533,900267,True,Wed Oct 18 21:50:10 +0000 2017,"The app keeps crashing every time I open my library, please help",700000534,
+700000534,SpotifyCares,False,Wed Oct 18 22:37:10 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000533
+700000535,900268,True,Wed Oct 18 23:21:16 +0000 2017,My bank shows I was double charged on the 3rd. Please sort this out,,
+700000537,900269,True,Thu Oct 19 00:52:21 +0000 2017,How many devices can I use at the same time?,700000538,
+700000538,SpotifyCares,False,Thu Oct 19 01:36:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000537
+700000539,900270,True,Thu Oct 19 02:23:27 +0000 2017,Where can I see my listening history?,,
+700000541,900271,True,Thu Oct 19 03:54:32 +0000 2017,How do I change the name on my profile?,700000542,
+700000542,SpotifyCares,False,Thu Oct 19 04:19:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000541
+700000543,900272,True,Thu Oct 19 05:25:38 +0000 2017,How many devices can I use at the same time?,,
+700000545,900273,True,Thu Oct 19 06:56:43 +0000 2017,"Keep getting logged out on my phone every single day, why?",700000546,
+700000546,SpotifyCares,False,Thu Oct 19 07:46:43 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000545
+700000547,900274,True,Thu Oct 19 08:27:49 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000549,900275,True,Thu Oct 19 09:58:54 +0000 2017,How do I change the name on my profile?,700000550,
+700000550,SpotifyCares,False,Thu Oct 19 10:38:54 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000549
+700000551,900276,True,Thu Oct 19 11:30:00 +0000 2017,How do I change the name on my profile?,,
+700000553,900277,True,Thu Oct 19 13:01:05 +0000 2017,"The app keeps crashing every time I open my library, please help",700000554,
+700000554,SpotifyCares,False,Thu Oct 19 13:25:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000553
+700000555,900278,True,Thu Oct 19 14:32:10 +0000 2017,"My offline playlists won't play on the train any more, help",,
+700000557,900279,True,Thu Oct 19 16:03:16 +0000 2017,Is it possible to share a playlist with a friend by link?,700000558,
+700000558,SpotifyCares,False,Thu Oct 19 16:22:16 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000557
+700000559,900280,True,Thu Oct 19 17:34:21 +0000 2017,Where can I see my listening history?,,
+700000561,900281,True,Thu Oct 19 19:05:27 +0000 2017,Is it possible to share a playlist with a friend by link?,700000562,
+700000562,SpotifyCares,False,Thu Oct 19 19:41:27 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000561
+700000563,900282,True,Thu Oct 19 20:36:32 +0000 2017,How many devices can I use at the same time?,,
+700000565,900283,True,Thu Oct 19 22:07:38 +0000 2017,How do I change the name on my profile?,700000566,
+700000566,SpotifyCares,False,Thu Oct 19 22:56:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000565
+700000567,900284,True,Thu Oct 19 23:38:43 +0000 2017,Can you add an option to hide podcasts from home?,,
+700000569,900285,True,Fri Oct 20 01:09:49 +0000 2017,Where can I see my listening history?,700000570,
+700000570,SpotifyCares,False,Fri Oct 20 01:37:49 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000569
+700000571,900286,True,Fri Oct 20 02:40:54 +0000 2017,How do I change the name on my profile?,,
+700000573,900287,True,Fri Oct 20 04:12:00 +0000 2017,"Best app for my morning walks, keep it up",700000574,
+700000574,SpotifyCares,False,Fri Oct 20 04:16:00 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000573
+700000575,900288,True,Fri Oct 20 05:43:05 +0000 2017,Where can I see my listening history?,,
+700000577,900289,True,Fri Oct 20 07:14:10 +0000 2017,Where can I see my listening history?,700000578,
+700000578,SpotifyCares,False,Fri Oct 20 08:03:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000577
+700000579,900290,True,Fri Oct 20 08:45:16 +0000 2017,How do I change the name on my profile?,,
+700000581,900291,True,Fri Oct 20 10:16:21 +0000 2017,How do I change the name on my profile?,700000582,
+700000582,SpotifyCares,False,Fri Oct 20 10:51:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000581
+700000583,900292,True,Fri Oct 20 11:47:27 +0000 2017,"Love the new playlist you made for me this week, thank you!",,
+700000585,900293,True,Fri Oct 20 13:18:32 +0000 2017,How many devices can I use at the same time?,700000586,
+700000586,SpotifyCares,False,Fri Oct 20 13:29:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000585
+700000587,900294,True,Fri Oct 20 14:49:38 +0000 2017,Where can I see my listening history?,,
+700000589,900295,True,Fri Oct 20 16:20:43 +0000 2017,"Desktop app crashes when I try to search, any fix?",700000590,
+700000590,SpotifyCares,False,Fri Oct 20 16:40:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000589
+700000591,900296,True,Fri Oct 20 17:51:49 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000593,900297,True,Fri Oct 20 19:22:54 +0000 2017,Where can I see my listening history?,700000594,
+700000594,SpotifyCares,False,Fri Oct 20 20:02:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000593
+700000595,900298,True,Fri Oct 20 20:54:00 +0000 2017,How do I change the name on my profile?,,
+700000597,900299,True,Fri Oct 20 22:25:05 +0000 2017,"I can't log in on my laptop, it just spins forever",700000598,
+700000598,SpotifyCares,False,Fri Oct 20 22:41:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000597
+700000599,900300,True,Fri Oct 20 23:56:10 +0000 2017,Where can I see my listening history?,,
+700000601,900301,True,Sat Oct 21 01:27:16 +0000 2017,"Love the new playlist you made for me this week, thank you!",700000602,
+700000602,SpotifyCares,False,Sat Oct 21 01:35:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000601
+700000603,900302,True,Sat Oct 21 02:58:21 +0000 2017,How many devices can I use at the same time?,,
+700000605,900303,True,Sat Oct 21 04:29:27 +0000 2017,"My offline playlists won't play on the train any more, help",700000606,
+700000606,SpotifyCares,False,Sat Oct 21 05:10:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000605
+700000607,900304,True,Sat Oct 21 06:00:32 +0000 2017,How do I change the name on my profile?,,
+700000609,900305,True,Sat Oct 21 07:31:38 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",700000610,
+700000610,SpotifyCares,False,Sat Oct 21 07:48:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000609
+700000611,900306,True,Sat Oct 21 09:02:43 +0000 2017,Where can I see my listening history?,,
+700000613,900307,True,Sat Oct 21 10:33:49 +0000 2017,"Thanks for the quick answer yesterday, great support",700000614,
+700000614,SpotifyCares,False,Sat Oct 21 11:04:49 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000613
+700000615,900308,True,Sat Oct 21 12:04:54 +0000 2017,Where can I see my listening history?,,
+700000617,900309,True,Sat Oct 21 13:36:00 +0000 2017,Is it possible to share a playlist with a friend by link?,700000618,
+700000618,SpotifyCares,False,Sat Oct 21 14:02:00 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000617
+700000619,900310,True,Sat Oct 21 15:07:05 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000621,900311,True,Sat Oct 21 16:38:10 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",700000622,
+700000622,SpotifyCares,False,Sat Oct 21 17:14:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000621
+700000623,900312,True,Sat Oct 21 18:09:16 +0000 2017,"Best app for my morning walks, keep it up",,
+700000625,900313,True,Sat Oct 21 19:40:21 +0000 2017,Is it possible to share a playlist with a friend by link?,700000626,
+700000626,SpotifyCares,False,Sat Oct 21 19:47:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000625
+700000627,900314,True,Sat Oct 21 21:11:27 +0000 2017,How many devices can I use at the same time?,,
+700000629,900315,True,Sat Oct 21 22:42:32 +0000 2017,Is it possible to share a playlist with a friend by link?,700000630,
+700000630,SpotifyCares,False,Sat Oct 21 23:00:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000629
+700000631,900316,True,Sun Oct 22 00:13:38 +0000 2017,"My offline playlists won't play on the train any more, help",,
+700000633,900317,True,Sun Oct 22 01:44:43 +0000 2017,How do I change the name on my profile?,700000634,
+700000634,SpotifyCares,False,Sun Oct 22 02:27:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000633
+700000635,900318,True,Sun Oct 22 03:15:49 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000637,900319,True,Sun Oct 22 04:46:54 +0000 2017,How many devices can I use at the same time?,700000638,
+700000638,SpotifyCares,False,Sun Oct 22 05:27:54 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000637
+700000639,900320,True,Sun Oct 22 06:18:00 +0000 2017,"My offline playlists won't play on the train any more, help",,
+700000641,900321,True,Sun Oct 22 07:49:05 +0000 2017,Sign in is not working on the desktop app for me,700000642,
+700000642,SpotifyCares,False,Sun Oct 22 07:56:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000641
+700000643,900322,True,Sun Oct 22 09:20:10 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000645,900323,True,Sun Oct 22 10:51:16 +0000 2017,"Best app for my morning walks, keep it up",700000646,
+700000646,SpotifyCares,False,Sun Oct 22 11:01:16 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000645
+700000647,900324,True,Sun Oct 22 12:22:21 +0000 2017,How do I change the name on my profile?,,
+700000649,900325,True,Sun Oct 22 13:53:27 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",700000650,
+700000650,SpotifyCares,False,Sun Oct 22 14:29:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000649
+700000651,900326,True,Sun Oct 22 15:24:32 +0000 2017,"Keep getting logged out on my phone every single day, why?",,
+700000653,900327,True,Sun Oct 22 16:55:38 +0000 2017,Where can I see my listening history?,700000654,
+700000654,SpotifyCares,False,Sun Oct 22 17:09:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000653
+700000655,900328,True,Sun Oct 22 18:26:43 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000657,900329,True,Sun Oct 22 19:57:49 +0000 2017,Where can I see my listening history?,700000658,
+700000658,SpotifyCares,False,Sun Oct 22 20:18:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000657
+700000659,900330,True,Sun Oct 22 21:28:54 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000661,900331,True,Mon Oct 23 00:00:00 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",700000662,
+700000662,SpotifyCares,False,Mon Oct 23 00:24:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000661
+700000663,900332,True,Mon Oct 23 01:31:05 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000665,900333,True,Mon Oct 23 03:02:10 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",700000666,
+700000666,SpotifyCares,False,Mon Oct 23 03:13:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000665
+700000667,900334,True,Mon Oct 23 04:33:16 +0000 2017,Is the service down right now? Nothing loads for me and my friends,,
+700000669,900335,True,Mon Oct 23 06:04:21 +0000 2017,Why have I been charged twice for one month? This is not ok,700000670,
+700000670,SpotifyCares,False,Mon Oct 23 06:21:21 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000669
+700000671,900336,True,Mon Oct 23 07:35:27 +0000 2017,How do I change the name on my profile?,,
+700000673,900337,True,Mon Oct 23 09:06:32 +0000 2017,"Best app for my morning walks, keep it up",700000674,
+700000674,SpotifyCares,False,Mon Oct 23 09:34:32 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000673
+700000675,900338,True,Mon Oct 23 10:37:38 +0000 2017,How do I change the name on my profile?,,
+700000677,900339,True,Mon Oct 23 12:08:43 +0000 2017,Sign in is not working on the desktop app for me,700000678,
+700000678,SpotifyCares,False,Mon Oct 23 12:32:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000677
+700000679,900340,True,Mon Oct 23 13:39:49 +0000 2017,Where can I see my listening history?,,
+700000681,900341,True,Mon Oct 23 15:10:54 +0000 2017,"Wrong amount taken from my card this month, can you check my account?",700000682,
+700000682,SpotifyCares,False,Mon Oct 23 15:25:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000681
+700000683,900342,True,Mon Oct 23 16:42:00 +0000 2017,Where can I see my listening history?,,
+700000685,900343,True,Mon Oct 23 18:13:05 +0000 2017,How many devices can I use at the same time?,700000686,
+700000686,SpotifyCares,False,Mon Oct 23 18:45:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000685
+700000687,900344,True,Mon Oct 23 19:44:10 +0000 2017,Where can I see my listening history?,,
+700000689,900345,True,Mon Oct 23 21:15:16 +0000 2017,Is it possible to share a playlist with a friend by link?,700000690,
+700000690,SpotifyCares,False,Mon Oct 23 21:38:16 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000689
+700000691,900346,True,Mon Oct 23 22:46:21 +0000 2017,My bank shows I was double charged on the 3rd. Please sort this out,,
+700000693,900347,True,Tue Oct 24 00:17:27 +0000 2017,"I can't log in on my laptop, it just spins forever",700000694,
+700000694,SpotifyCares,False,Tue Oct 24 00:42:27 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000693
+700000695,900348,True,Tue Oct 24 01:48:32 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000697,900349,True,Tue Oct 24 03:19:38 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",700000698,
+700000698,SpotifyCares,False,Tue Oct 24 03:40:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000697
+700000699,900350,True,Tue Oct 24 04:50:43 +0000 2017,Sign in is not working on the desktop app for me,,
+700000701,900351,True,Tue Oct 24 06:21:49 +0000 2017,Where can I see my listening history?,700000702,
+700000702,SpotifyCares,False,Tue Oct 24 06:41:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000701
+700000703,900352,True,Tue Oct 24 07:52:54 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000705,900353,True,Tue Oct 24 09:24:00 +0000 2017,Where can I see my listening history?,700000706,
+700000706,SpotifyCares,False,Tue Oct 24 09:36:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000705
+700000707,900354,True,Tue Oct 24 10:55:05 +0000 2017,My bank shows I was double charged on the 3rd. Please sort this out,,
+700000709,900355,True,Tue Oct 24 12:26:10 +0000 2017,Is it possible to share a playlist with a friend by link?,700000710,
+700000710,SpotifyCares,False,Tue Oct 24 13:03:10 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000709
+700000711,900356,True,Tue Oct 24 13:57:16 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",,
+700000713,900357,True,Tue Oct 24 15:28:21 +0000 2017,Where can I see my listening history?,700000714,
+700000714,SpotifyCares,False,Tue Oct 24 16:09:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000713
+700000715,900358,True,Tue Oct 24 16:59:27 +0000 2017,Where can I see my listening history?,,
+700000717,900359,True,Tue Oct 24 18:30:32 +0000 2017,Where can I see my listening history?,700000718,
+700000718,SpotifyCares,False,Tue Oct 24 18:34:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000717
+700000719,900360,True,Tue Oct 24 20:01:38 +0000 2017,Where can I see my listening history?,,
+700000721,900361,True,Tue Oct 24 21:32:43 +0000 2017,"Keep getting logged out on my phone every single day, why?",700000722,
+700000722,SpotifyCares,False,Tue Oct 24 21:59:43 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000721
+700000723,900362,True,Tue Oct 24 23:03:49 +0000 2017,"Wrong amount taken from my card this month, can you check my account?",,
+700000725,900363,True,Wed Oct 25 00:34:54 +0000 2017,Is it possible to share a playlist with a friend by link?,700000726,
+700000726,SpotifyCares,False,Wed Oct 25 01:17:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000725
+700000727,900364,True,Wed Oct 25 02:06:00 +0000 2017,How many devices can I use at the same time?,,
+700000729,900365,True,Wed Oct 25 03:37:05 +0000 2017,"The app keeps crashing every time I open my library, please help",700000730,
+700000730,SpotifyCares,False,Wed Oct 25 04:02:05 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000729
+700000731,900366,True,Wed Oct 25 05:08:10 +0000 2017,Where can I see my listening history?,,
+700000733,900367,True,Wed Oct 25 06:39:16 +0000 2017,"Thanks for the quick answer yesterday, great support",700000734,
+700000734,SpotifyCares,False,Wed Oct 25 07:14:16 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000733
+700000735,900368,True,Wed Oct 25 08:10:21 +0000 2017,How many devices can I use at the same time?,,
+700000737,900369,True,Wed Oct 25 09:41:27 +0000 2017,"Everything is down again in my city, can't play anything",700000738,
+700000738,SpotifyCares,False,Wed Oct 25 10:07:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000737
+700000739,900370,True,Wed Oct 25 11:12:32 +0000 2017,Any plans for lyrics on the web player? Would be nice,,
+700000741,900371,True,Wed Oct 25 12:43:38 +0000 2017,"Everything is down again in my city, can't play anything",700000742,
+700000742,SpotifyCares,False,Wed Oct 25 13:30:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000741
+700000743,900372,True,Wed Oct 25 14:14:43 +0000 2017,How many devices can I use at the same time?,,
+700000745,900373,True,Wed Oct 25 15:45:49 +0000 2017,"My offline playlists won't play on the train any more, help",700000746,
+700000746,SpotifyCares,False,Wed Oct 25 15:53:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000745
+700000747,900374,True,Wed Oct 25 17:16:54 +0000 2017,"Just noticed I got charged again for a plan I already paid, what is going on?",,
+700000749,900375,True,Wed Oct 25 18:48:00 +0000 2017,Is it possible to share a playlist with a friend by link?,700000750,
+700000750,SpotifyCares,False,Wed Oct 25 19:26:00 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000749
+700000751,900376,True,Wed Oct 25 20:19:05 +0000 2017,Where can I see my listening history?,,
+700000753,900377,True,Wed Oct 25 21:50:10 +0000 2017,"I was charged twice this month, please fix this",700000754,
+700000754,SpotifyCares,False,Wed Oct 25 22:21:10 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000753
+700000755,900378,True,Wed Oct 25 23:21:16 +0000 2017,Where can I see my listening history?,,
+700000757,900379,True,Thu Oct 26 00:52:21 +0000 2017,"Wrong amount taken from my card this month, can you check my account?",700000758,
+700000758,SpotifyCares,False,Thu Oct 26 01:00:21 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000757
+700000759,900380,True,Thu Oct 26 02:23:27 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000761,900381,True,Thu Oct 26 03:54:32 +0000 2017,Is it possible to share a playlist with a friend by link?,700000762,
+700000762,SpotifyCares,False,Thu Oct 26 04:42:32 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000761
+700000763,900382,True,Thu Oct 26 05:25:38 +0000 2017,"Desktop app crashes when I try to search, any fix?",,
+700000765,900383,True,Thu Oct 26 06:56:43 +0000 2017,"The app keeps crashing every time I open my library, please help",700000766,
+700000766,SpotifyCares,False,Thu Oct 26 07:37:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000765
+700000767,900384,True,Thu Oct 26 08:27:49 +0000 2017,Where can I see my listening history?,,
+700000769,900385,True,Thu Oct 26 09:58:54 +0000 2017,Is it possible to share a playlist with a friend by link?,700000770,
+700000770,SpotifyCares,False,Thu Oct 26 10:44:54 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000769
+700000771,900386,True,Thu Oct 26 11:30:00 +0000 2017,Why have I been charged twice for one month? This is not ok,,
+700000773,900387,True,Thu Oct 26 13:01:05 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000774,
+700000774,SpotifyCares,False,Thu Oct 26 13:49:05 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000773
+700000775,900388,True,Thu Oct 26 14:32:10 +0000 2017,"I was charged twice this month, please fix this",,
+700000777,900389,True,Thu Oct 26 16:03:16 +0000 2017,"Thanks for the quick answer yesterday, great support",700000778,
+700000778,SpotifyCares,False,Thu Oct 26 16:14:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000777
+700000779,900390,True,Thu Oct 26 17:34:21 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000781,900391,True,Thu Oct 26 19:05:27 +0000 2017,Where can I see my listening history?,700000782,
+700000782,SpotifyCares,False,Thu Oct 26 19:11:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000781
+700000783,900392,True,Thu Oct 26 20:36:32 +0000 2017,How do I change the name on my profile?,,
+700000785,900393,True,Thu Oct 26 22:07:38 +0000 2017,"Thanks for the quick answer yesterday, great support",700000786,
+700000786,SpotifyCares,False,Thu Oct 26 22:49:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000785
+700000787,900394,True,Thu Oct 26 23:38:43 +0000 2017,"I was charged twice this month, please fix this",,
+700000789,900395,True,Fri Oct 27 01:09:49 +0000 2017,How many devices can I use at the same time?,700000790,
+700000790,SpotifyCares,False,Fri Oct 27 01:22:49 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000789
+700000791,900396,True,Fri Oct 27 02:40:54 +0000 2017,How many devices can I use at the same time?,,
+700000793,900397,True,Fri Oct 27 04:12:00 +0000 2017,"Offline mode is not working since yesterday, nothing plays without wifi",700000794,
+700000794,SpotifyCares,False,Fri Oct 27 04:40:00 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000793
+700000795,900398,True,Fri Oct 27 05:43:05 +0000 2017,How do I change the name on my profile?,,
+700000797,900399,True,Fri Oct 27 07:14:10 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",700000798,
+700000798,SpotifyCares,False,Fri Oct 27 07:19:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000797
+700000799,900400,True,Fri Oct 27 08:45:16 +0000 2017,How do I get my money back for last month? I never used it,,
+700000801,900401,True,Fri Oct 27 10:16:21 +0000 2017,How many devices can I use at the same time?,700000802,
+700000802,SpotifyCares,False,Fri Oct 27 10:31:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000801
+700000803,900402,True,Fri Oct 27 11:47:27 +0000 2017,"Wrong amount taken from my card this month, can you check my account?",,
+700000805,900403,True,Fri Oct 27 13:18:32 +0000 2017,Is the service down right now? Nothing loads for me and my friends,700000806,
+700000806,SpotifyCares,False,Fri Oct 27 14:05:32 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000805
+700000807,900404,True,Fri Oct 27 14:49:38 +0000 2017,How many devices can I use at the same time?,,
+700000809,900405,True,Fri Oct 27 16:20:43 +0000 2017,Can you add an option to hide podcasts from home?,700000810,
+700000810,SpotifyCares,False,Fri Oct 27 16:36:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000809
+700000811,900406,True,Fri Oct 27 17:51:49 +0000 2017,How do I change the name on my profile?,,
+700000813,900407,True,Fri Oct 27 19:22:54 +0000 2017,How many devices can I use at the same time?,700000814,
+700000814,SpotifyCares,False,Fri Oct 27 19:38:54 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000813
+700000815,900408,True,Fri Oct 27 20:54:00 +0000 2017,"Just noticed I got charged again for a plan I already paid, what is going on?",,
+700000817,900409,True,Fri Oct 27 22:25:05 +0000 2017,"My offline playlists won't play on the train any more, help",700000818,
+700000818,SpotifyCares,False,Fri Oct 27 22:52:05 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000817
+700000819,900410,True,Fri Oct 27 23:56:10 +0000 2017,"Love the new playlist you made for me this week, thank you!",,
+700000821,900411,True,Sat Oct 28 01:27:16 +0000 2017,"I was charged twice this month, please fix this",700000822,
+700000822,SpotifyCares,False,Sat Oct 28 01:31:16 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000821
+700000823,900412,True,Sat Oct 28 02:58:21 +0000 2017,"Thanks for the quick answer yesterday, great support",,
+700000825,900413,True,Sat Oct 28 04:29:27 +0000 2017,"My tracks keep stopping halfway through on the phone, why?",700000826,
+700000826,SpotifyCares,False,Sat Oct 28 04:48:27 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000825
+700000827,900414,True,Sat Oct 28 06:00:32 +0000 2017,"Downloads keep failing on my phone, it never finishes. Can you fix it?",,
+700000829,900415,True,Sat Oct 28 07:31:38 +0000 2017,How many devices can I use at the same time?,700000830,
+700000830,SpotifyCares,False,Sat Oct 28 08:15:38 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000829
+700000831,900416,True,Sat Oct 28 09:02:43 +0000 2017,Where can I see my listening history?,,
+700000833,900417,True,Sat Oct 28 10:33:49 +0000 2017,How many devices can I use at the same time?,700000834,
+700000834,SpotifyCares,False,Sat Oct 28 10:57:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000833
+700000835,900418,True,Sat Oct 28 12:04:54 +0000 2017,Can you add an option to hide podcasts from home?,,
+700000837,900419,True,Sat Oct 28 13:36:00 +0000 2017,How many devices can I use at the same time?,700000838,
+700000838,SpotifyCares,False,Sat Oct 28 13:42:00 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000837
+700000839,900420,True,Sat Oct 28 15:07:05 +0000 2017,Is it possible to share a playlist with a friend by link?,,
+700000841,900421,True,Sat Oct 28 16:38:10 +0000 2017,How do I change the name on my profile?,700000842,
+700000842,SpotifyCares,False,Sat Oct 28 17:17:10 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000841
+700000843,900422,True,Sat Oct 28 18:09:16 +0000 2017,Is the service down right now? Nothing loads for me and my friends,,
+700000845,900423,True,Sat Oct 28 19:40:21 +0000 2017,Where can I see my listening history?,700000846,
+700000846,SpotifyCares,False,Sat Oct 28 19:46:21 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000845
+700000847,900424,True,Sat Oct 28 21:11:27 +0000 2017,"Best app for my morning walks, keep it up",,
+700000849,900425,True,Sat Oct 28 22:42:32 +0000 2017,How do I change the name on my profile?,700000850,
+700000850,SpotifyCares,False,Sat Oct 28 22:53:32 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000849
+700000851,900426,True,Sun Oct 29 00:13:38 +0000 2017,Why have I been charged twice for one month? This is not ok,,
+700000853,900427,True,Sun Oct 29 01:44:43 +0000 2017,"Best app for my morning walks, keep it up",700000854,
+700000854,SpotifyCares,False,Sun Oct 29 02:01:43 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000853
+700000855,900428,True,Sun Oct 29 03:15:49 +0000 2017,"I stopped using it weeks ago and still paid, I want a refund please",,
+700000857,900429,True,Sun Oct 29 04:46:54 +0000 2017,"Please add a sleep timer to the desktop app, would be great",700000858,
+700000858,SpotifyCares,False,Sun Oct 29 05:34:54 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000857
+700000859,900430,True,Sun Oct 29 06:18:00 +0000 2017,Can you add an option to hide podcasts from home?,,
+700000861,900431,True,Sun Oct 29 07:49:05 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",700000862,
+700000862,SpotifyCares,False,Sun Oct 29 08:24:05 +0000 2017,Sorry to hear that! Could you send us a DM with more details so we can take a look? /JS,,700000861
+700000863,900432,True,Sun Oct 29 09:20:10 +0000 2017,"Music keeps pausing by itself every few minutes, so annoying",,
+700000865,900433,True,Sun Oct 29 10:51:16 +0000 2017,How many devices can I use at the same time?,700000866,
+700000866,SpotifyCares,False,Sun Oct 29 10:55:16 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000865
+700000867,900434,True,Sun Oct 29 12:22:21 +0000 2017,Sign in is not working on the desktop app for me,,
+700000869,900435,True,Sun Oct 29 13:53:27 +0000 2017,How many devices can I use at the same time?,700000870,
+700000870,SpotifyCares,False,Sun Oct 29 14:04:27 +0000 2017,We're on it. Please DM us and we'll check what's happening with your account. /AL,,700000869
+700000871,900436,True,Sun Oct 29 15:24:32 +0000 2017,Is the service down right now? Nothing loads for me and my friends,,
+700000873,900437,True,Sun Oct 29 16:55:38 +0000 2017,"That new single is unavailable for me, is it a problem on your side?",700000874,
+700000874,SpotifyCares,False,Sun Oct 29 17:20:38 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000873
+700000875,900438,True,Sun Oct 29 18:26:43 +0000 2017,"Looks like there is an outage, the whole thing is not working for anyone here",,
+700000877,900439,True,Sun Oct 29 19:57:49 +0000 2017,How many devices can I use at the same time?,700000878,
+700000878,SpotifyCares,False,Sun Oct 29 20:34:49 +0000 2017,Thanks for reaching out. Can you tell us which device and app version you're using? /MK,,700000877
+700000879,900440,True,Sun Oct 29 21:28:54 +0000 2017,Where can I see my listening history?,,

@@ -1,0 +1,4 @@
+-r requirements.txt
+# Development / QA only (not needed to run the application)
+# Browser regression tests: Playwright drives the locally installed Microsoft Edge (no browser download).
+playwright==1.49.1

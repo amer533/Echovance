@@ -1,0 +1,6 @@
+{% comment %}Data-scope switch. Real = real LLM + human-corrected analyses (default). Demo = mock keyword analyses. Never mixed.{% endcomment %}
+<nav class="tabs" aria-label="Data scope">
+  <a href="?scope=real{{ extra|default:'' }}" {% if scope == 'real' %}aria-current="true"{% endif %}>Real AI data</a>
+  <a href="?scope=demo{{ extra|default:'' }}" {% if scope == 'demo' %}aria-current="true"{% endif %}>Mock demo data</a>
+</nav>
+{% if scope == 'demo' %}<div class="banner banner-warn small" role="status"><strong>Demo data.</strong> Figures on this page come from the mock keyword test double (historical demo), not from a language model. They are never combined with real AI results.</div>{% endif %}

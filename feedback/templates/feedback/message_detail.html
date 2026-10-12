@@ -1,0 +1,67 @@
+{% extends "feedback/base.html" %}
+{% block title %}Message {{ msg.source_message_id }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><p class="small"><a href="{% url 'messages' %}">← Messages</a></p>
+  <h1>{{ msg.get_author_role_display }} message</h1>
+  <p class="secondary small">Source tweet_id <span class="mono">{{ msg.source_message_id }}</span> · {{ msg.created_at|date:"j M Y H:i" }} UTC · author <span class="mono">{{ msg.author_hash }}</span> (pseudonymised) · <a href="{% url 'import-detail' msg.import_batch_id %}">import #{{ msg.import_batch_id }}</a></p></div>
+  <span class="badge {% if msg.analysis_status == 'completed' %}badge-good{% elif msg.analysis_status == 'failed' %}badge-bad{% elif msg.analysis_status == 'needs_review' %}badge-warn{% endif %}">{{ msg.get_analysis_status_display }}</span></div>
+
+<section class="card" aria-label="Message text">
+  <div class="quote">{% for seg, ev in segments %}{% if ev %}<mark class="evidence">{{ seg }}</mark>{% else %}{{ seg }}{% endif %}{% endfor %}</div>
+  {% if mentions %}<p class="small muted">Highlighted spans are evidence quotes verified to exist verbatim in this message.</p>{% endif %}
+  {% if not msg.is_complaint_candidate %}<p class="small muted">Not a complaint candidate ({% if msg.author_role == 'agent' %}support-agent reply{% else %}customer follow-up within a thread{% endif %}).</p>{% endif %}
+</section>
+
+<div class="grid grid-2" style="margin-top:16px">
+  <section class="card" aria-labelledby="ex-h">
+    <h2 id="ex-h">Extracted issues</h2>
+    {% if current %}
+      <p class="small">Type: <strong>{{ current.get_message_type_display|default:"—" }}</strong> · {{ current.provider }}/{{ current.model_name }} · prompt {{ current.prompt_version }}
+        <span class="badge {% if current.source == 'mock' %}badge-mock{% elif current.source == 'human' %}badge-info{% else %}badge-good{% endif %}">{{ current.get_source_display }}</span>
+        {% if current.reused_from_id %}<span class="badge">reused identical result #{{ current.reused_from_id }}</span>{% endif %}</p>
+      {% if current.redaction %}<p class="small muted">Redacted before sending: {% for k, v in current.redaction.items %}{{ v }} {{ k }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+      {% if current.review_reasons %}<div class="banner banner-warn small"><strong>Needs review:</strong> {{ current.review_reasons|join:"; " }}. Mentions from this analysis are not counted in issue statistics.</div>{% endif %}
+      {% for m in mentions %}
+        <div style="margin-bottom:12px"><a href="{% url 'issue-detail' m.issue_id %}"><strong>{{ m.issue.title }}</strong></a> <span class="badge {% if m.sentiment == 'negative' %}badge-bad{% elif m.sentiment == 'positive' %}badge-good{% endif %}">{{ m.sentiment }}</span>
+          <p class="small secondary" style="margin:4px 0">{{ m.summary }}</p>
+          <div class="quote small">“{{ m.evidence_text }}”</div></div>
+      {% empty %}<p class="muted">No issue mentions recorded for this message.</p>{% endfor %}
+    {% else %}<p class="empty">Not analysed yet.</p>{% endif %}
+  </section>
+  <section class="card" aria-labelledby="th-h">
+    <h2 id="th-h">Conversation context</h2>
+    {% for kind, t in thread %}
+      <p class="small"><strong>{{ kind }}</strong> · {{ t.get_author_role_display }} · {{ t.created_at|date:"j M Y H:i" }}</p>
+      <div class="quote small"><a href="{% url 'message-detail' t.pk %}">{{ t.text }}</a></div>
+    {% empty %}<p class="muted">No linked messages in the imported data.</p>{% endfor %}
+  </section>
+</div>
+
+{% if can_run_pipeline and msg.is_complaint_candidate %}
+<section class="card" style="margin-top:16px" aria-labelledby="corr-h">
+  <details><summary><h2 id="corr-h" style="display:inline">Correct this analysis</h2></summary>
+  <p class="small secondary">Saves a <strong>human</strong> analysis that becomes current; the previous analysis stays in history. Evidence must be copied exactly from the message text above. Human corrections count as real data but are never used as AI-quality evidence.</p>
+  <form method="post" action="{% url 'message-correct' msg.pk %}">{% csrf_token %}
+    <div class="field">{{ correction_form.message_type.label_tag }}{{ correction_form.message_type }}</div>
+    {% for i in "123" %}
+      <div class="grid grid-3">
+        {% for f in correction_form %}{% if f.name == "aspect"|add:i|add:"_key" or f.name == "aspect"|add:i|add:"_sentiment" or f.name == "aspect"|add:i|add:"_evidence" %}<div class="field">{{ f.label_tag }}{{ f }}</div>{% endif %}{% endfor %}
+      </div>
+    {% endfor %}
+    <div class="field">{{ correction_form.note.label_tag }}{{ correction_form.note }}</div>
+    <button class="btn btn-primary" type="submit">Save correction</button>
+  </form></details>
+</section>
+{% endif %}
+
+{% if analyses %}
+<section class="card" style="margin-top:16px" aria-labelledby="hist-h"><h2 id="hist-h">Analysis history</h2>
+  <div class="table-wrap"><table><thead><tr><th>When</th><th>Provider / model</th><th>Prompt</th><th>Status</th><th class="num">Attempts</th><th class="num">Latency</th><th>Error</th></tr></thead><tbody>
+  {% for a in analyses %}<tr><td class="small nowrap">{{ a.created_at|date:"j M Y H:i" }}{% if a.is_current %} <span class="badge badge-info">current</span>{% endif %}</td>
+    <td class="small">{{ a.provider }}/{{ a.model_name }} <span class="badge {% if a.source == 'mock' %}badge-mock{% elif a.source == 'human' %}badge-info{% endif %}">{{ a.source }}</span>{% if a.job_id %} · <a href="{% url 'job-detail' a.job_id %}">job #{{ a.job_id }}</a>{% endif %}</td><td class="small">{{ a.prompt_version }}</td>
+    <td>{{ a.get_status_display }}</td><td class="num">{{ a.attempts }}</td><td class="num small">{% if a.provider_latency_ms is not None %}{{ a.provider_latency_ms }} ms model{% if a.queue_wait_ms %} · {{ a.queue_wait_ms }} ms wait{% endif %}{% elif a.latency_ms is not None %}{{ a.latency_ms }} ms total{% else %}—{% endif %}</td>
+    <td class="small">{% if a.error_code %}<code>{{ a.error_code }}</code> {{ a.error_detail|truncatechars:120 }}{% else %}—{% endif %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "feedback/base.html" %}
+{% block title %}Issues{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Recurring issues</h1><p class="secondary">Issues are grouped by a stable taxonomy key (category + subtype). Counts are distinct customer conversations with a validated, evidence-backed mention.</p></div></div>
+{% include "feedback/partials/scope_toggle.html" %}
+<section class="card">
+  <form class="filters" method="get"><input type="hidden" name="scope" value="{{ scope }}">
+    <div class="field"><label for="f-cat">Category</label><select id="f-cat" name="category"><option value="">All categories</option>
+      {% for code, c in categories.items %}<option value="{{ code }}" {% if category == code %}selected{% endif %}>{{ c.label }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="f-sort">Sort by</label><select id="f-sort" name="sort">
+      <option value="-mention_count" {% if sort == '-mention_count' %}selected{% endif %}>Most messages</option>
+      <option value="-last_seen" {% if sort == '-last_seen' %}selected{% endif %}>Most recent</option>
+      <option value="-open_alerts" {% if sort == '-open_alerts' %}selected{% endif %}>Open alerts</option>
+      <option value="key" {% if sort == 'key' %}selected{% endif %}>Key</option></select></div>
+    <button class="btn" type="submit">Apply</button>
+  </form>
+  {% if issues %}
+  <div class="table-wrap"><table><thead><tr><th>Issue</th><th>Key</th><th class="num">Messages</th><th class="num">Negative</th><th>First / last seen</th><th>Status</th><th class="num">Open alerts</th></tr></thead><tbody>
+  {% for i in issues %}
+    <tr><td><a href="{% url 'issue-detail' i.pk %}?scope={{ scope }}">{{ i.title }}</a></td><td class="mono small">{{ i.key }}</td><td class="num">{{ i.mention_count }}</td><td class="num">{{ i.negative_count }}</td>
+      <td class="small nowrap">{{ i.first_seen|date:"j M" }} – {{ i.last_seen|date:"j M Y" }}</td><td><span class="badge">{{ i.get_status_display }}</span></td>
+      <td class="num">{% if i.open_alerts %}<span class="badge badge-warn">{{ i.open_alerts }}</span>{% else %}0{% endif %}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="empty">No issues with evidence in the <strong>{{ scope }}</strong> data scope yet.{% if scope == 'real' %} Run an authorised <a href="{% url 'jobs' %}">AI job</a> to analyse conversations with the real model.{% endif %}</p>{% endif %}
+</section>
+{% endblock %}
