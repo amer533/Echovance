@@ -5,25 +5,24 @@ Echovance turns historical customer-support conversations into operational decis
 **import → validate → detect complaints → extract issues with an LLM (verified evidence) → group →
 weekly trends → deterministic alerts → AI-proposed actions → manager approval → task tracking**
 
-It is a decision-support tool, not a chatbot. It was built on the public *Customer Support on Twitter*
-dataset (SpotifyCares, Oct–Nov 2017); the privacy-reviewed development subset and the 13 genuine historical
-AI results are included (`data/spotifycares_public/`, CC BY-NC-SA 4.0). Final project for the Kernel CAIE
-Level 2 AI Engineering program.
+It is a decision-support tool, not a chatbot, built as the final project for the Kernel CAIE Level 2 AI
+Engineering program. It runs on **real customer-support data**: 4,000 SpotifyCares conversations and 4,000
+brand replies (Oct–Nov 2017) from the public *Customer Support on Twitter* dataset, privacy-reviewed and
+included in `data/spotifycares_public/` (CC BY-NC-SA 4.0). New AI operations use **OpenAI GPT**.
 
 > Initial AI validation used Google Gemini. The 13 genuine historical analysis results are preserved for reproducibility. All new AI analysis uses OpenAI GPT.
+
+**What exists today (honest status):** only **13** of the 4,000 conversations have a real AI analysis — the
+13 historical Gemini results. The other 3,987 are imported but unanalysed until someone runs new GPT analyses
+with an API key and an authorised request budget. Real trend alerts need at least 100 analysed conversations
+per weekly window, so with 13 results the trend detector correctly reports *insufficient data*.
 
 | | |
 |---|---|
 | Stack | Python 3.12, Django 5.1, Django REST Framework, PostgreSQL 16, server-rendered HTML/CSS + minimal JS |
-| AI | **OpenAI GPT** (`gpt-4o-mini`) via the official SDK with strict JSON-schema output, behind a persisted request/cost budget and a privacy gate. A clearly labelled keyword **mock** runs the whole workflow offline for demos and tests. |
+| AI | **OpenAI GPT** (`gpt-4o-mini`) via the official SDK with strict JSON-schema output, verified evidence, a persisted request/cost budget and a privacy gate |
+| Data | 8,000 real SpotifyCares rows + 13 genuine historical AI analyses (reproducible snapshot) |
 | Tests | 260 pytest tests (PostgreSQL, no network), incl. 5 real-browser tests and 44 real-AI-path tests over mocked HTTP |
-
-**Two AI modes — never mixed.** *Real mode* (the `.env.example` default) sends new analyses to OpenAI. It
-needs a valid `OPENAI_API_KEY` **and** a request budget explicitly authorised by the owner (see
-[OpenAI integration](#openai-integration)); without a key, imported data and stored results remain fully
-available and only new AI requests are refused. *Demo mode* uses the deterministic keyword mock: no API key,
-no network, no cost. Its results are labelled `MOCK` everywhere and live in a separate **demo data scope**;
-they are not AI analysis.
 
 ## Quick start (clean machine)
 
@@ -39,8 +38,9 @@ copy .env.example .env
 .venv\Scripts\python -c "import secrets; print(secrets.token_urlsafe(50))"   # paste into DJANGO_SECRET_KEY
 ```
 
-Edit `.env`: set `DJANGO_SECRET_KEY`, `DB_PASSWORD` and, for new AI analysis, `OPENAI_API_KEY`. Everything
-else is pre-configured for OpenAI `gpt-4o-mini` with its prices and the request/cost limits.
+Edit `.env`: set `DJANGO_SECRET_KEY`, `DB_PASSWORD` and, for new AI analysis, your own `OPENAI_API_KEY`
+(optional: without it everything below except new GPT requests works). Everything else is pre-configured for
+OpenAI `gpt-4o-mini` with its prices and the request/cost limits.
 
 ### Database (fresh PostgreSQL database)
 
@@ -67,50 +67,59 @@ your own; existing users are never changed). Roles: **Managers** approve/assign 
 authorise jobs (+ everything analysts can do) · **Analysts** import, analyse, detect, correct, label ·
 **Viewers** read only (an assignee may still start/complete their own actions).
 
-## Real-data walkthrough (SpotifyCares, no API key needed)
+## Instructor walkthrough (real SpotifyCares data)
 
-`data/spotifycares_public/` holds the real data used during development, prepared for redistribution:
-4,000 SpotifyCares customer conversations (Oct–Nov 2017) + 4,000 brand replies, with URLs, handles, names
-and number-like identifiers redacted, plus the **13 genuine historical analyses** made with Google Gemini during development (kept as Gemini results).
-Source, licence (CC BY-NC-SA 4.0, non-commercial), changes and residual privacy risk:
-[`data/spotifycares_public/README.md`](data/spotifycares_public/README.md).
+`data/spotifycares_public/` contains the real data used during development, prepared for redistribution:
+4,000 SpotifyCares customer conversations + 4,000 brand replies (URLs, handles, names and number-like
+identifiers redacted) and the **13 genuine historical AI analyses** made with Google Gemini during
+development (kept as Gemini results, never relabelled). Source, licence (CC BY-NC-SA 4.0, non-commercial),
+changes and residual privacy risk: [`data/spotifycares_public/README.md`](data/spotifycares_public/README.md).
 
-**1. Import the data and the genuine historical results** (into the fresh database from the quick start;
+**1. Import the real data and the 13 genuine AI results** (into the fresh database from the quick start;
 no API key needed):
 
 ```powershell
 .venv\Scripts\python manage.py import_messages data\spotifycares_public\spotifycares_subset.csv --data-classification public
 #   -> total=8000 accepted=8000 customer_roots=4000 agent_replies=4000   (re-running it only finds duplicates)
 .venv\Scripts\python manage.py import_llm_snapshot
-#   -> 13 genuine analyses imported; no API request made, the AI budget of this database is not used
+#   -> imported=13 rejected=0; no API request is made and the AI budget of this database is not used
 ```
 
-**2. Inspect the historical AI results offline** (log in as `manager`; the dashboard defaults to *Real AI data*):
+**2. Inspect the real AI results** (`runserver`, log in as `manager`; the dashboard shows *Real AI data*):
 
-* **Dashboard**: provenance shows 13 conversations analysed by Gemini and 3,987 unprocessed; 9 issues.
-* **Messages** → filter *Status: completed* → open one: Gemini's analysis (provider `gemini`,
-  model `gemini-3.5-flash-lite`, prompt `extract-v1`, tokens, latency) with the quoted evidence highlighted in
-  the message. The originating run says "Imported snapshot of genuine gemini results" (`GET /api/analyses/`).
-* **Issues** (real scope): the issues found by Gemini, each linked to its evidence.
-* **Alerts** (real scope): *Detect trends* reports **insufficient data** — 13 analyses are far below the
-  100 per week the rules require. This is the honest result, not a failure.
+* **Dashboard**: provenance shows 13 conversations analysed by real AI and 3,987 unprocessed; 9 issues.
+* **Messages** → filter *Status: completed* → open one: the AI analysis (provider `gemini`, model
+  `gemini-3.5-flash-lite`, prompt `extract-v1`, tokens, latency) with the quoted evidence highlighted in the
+  customer's message. Every quote is verified to appear verbatim in the stored text. The originating run is
+  labelled "Imported snapshot of genuine gemini results" (`GET /api/analyses/`).
+* **Issues**: the 9 issues found in those 13 conversations, each linked to its evidence messages.
+* **Alerts** → *Run trend detection* → *Detect*: reports **insufficient data** — 13 analysed conversations are far below
+  the 100 per week the trend rules require. This is the correct result, not a failure.
 
-**3. Optional — run the full pipeline on the real texts offline with the mock** (results labelled `MOCK`,
-kept in the separate demo scope; the 13 historical results are not touched). The mock only runs in demo
-mode: set `ECHOVANCE_AI_MODE=demo` and `LLM_PROVIDER=mock` in `.env` (restart `runserver`), then
+**3. Manager → approval → assignment → completion** (on a real issue; no API key needed):
 
-```powershell
-.venv\Scripts\python manage.py run_analysis --limit 5000   # Provider: MOCK ... 3,987 conversations
-```
+1. As `manager`, open an issue (e.g. from **Issues**) → *Propose an action manually* → title and
+   description → *Create proposal*. The action starts as **Proposed**.
+2. On the action page: *Approve* (a manager decision; *Reject* requires a reason).
+3. *Assign* it to `agent1` (optional due date).
+4. Log in as `agent1` → **Actions** → the action → *Start work* → *Mark completed* (with a note).
+5. Back as `manager`: the audit trail lists every step with actor and time. Completing an action does **not**
+   resolve the issue; the issue status remains a separate manager decision (*Save status* on the issue).
+   A `viewer` sees everything but gets no action buttons.
 
-Switch back to `ECHOVANCE_AI_MODE=real` / `LLM_PROVIDER=openai` for real analysis; the mock results stay in
-the demo scope. Then **Dashboard → Mock demo data**, **Alerts → Detect trends → scope Mock demo analyses** (5 weekly
-windows, 20 `surge` alerts on the real conversations, e.g. `account_access.login_failure`: 35 vs. a
-baseline mean of 19 in the week of 24 Nov), open an alert, *Acknowledge*, *Suggest action with AI*
-(a `[MOCK]` template proposal, status **Proposed**), *Approve* → *Assign* to `agent1` → log in as `agent1`
-→ *Start* → *Complete*. The audit trail records every step; completing an action does not resolve the issue.
+**4. New AI with your own OpenAI key** (optional; see [OpenAI integration](#openai-integration)):
 
-**4. Optional — blind labelling of the held-out evaluation sample:**
+Put your key in `OPENAI_API_KEY` and restart `runserver`. A fresh database allows **3** real requests
+(raise with `manage.py llm_budget --authorize N --confirm`, at most 20). Then:
+
+* **Messages → Analyse**: GPT analyses the next unprocessed conversation (one message per click); the result
+  appears as provider `openai`, model `gpt-4o-mini`, with tokens and cost (`manage.py llm_budget --log`).
+* On an issue page, **Suggest an action with AI**: GPT drafts a **Proposed** action citing the issue's real
+  evidence; it then follows the same approval → assignment → completion workflow as step 3.
+* Bulk analysis runs as manager-authorised **AI jobs** (see below). Real trend alerts appear only once
+  enough conversations are analysed (≥ 100 per week, i.e. several hundred requests and a raised budget).
+
+**5. Optional — blind labelling of the held-out evaluation sample:**
 
 ```powershell
 New-Item -ItemType Directory -Force data\eval | Out-Null
@@ -120,29 +129,16 @@ Copy-Item data\spotifycares_public\eval\*.csv data\eval\
 **Labelling** (`/evaluation/label/`) then serves the 200 held-out messages without model output, and
 `manage.py evaluate_ai` reports metrics once enough independent labels and real predictions exist.
 
-### What works offline vs. what needs an API key
+### What works without a key vs. what needs an OpenAI key
 
-| Offline (no key, no cost) | Needs `OPENAI_API_KEY` + an owner-authorised budget |
+| Without a key (no cost) | Needs `OPENAI_API_KEY` + an owner-authorised budget |
 |---|---|
-| import the real subset; inspect the 13 genuine historical (Gemini) results, their evidence, issues and usage | analysing any further conversation with OpenAI (UI *Analyse*, jobs, *re-analyse mock-analysed*) |
-| full pipeline with the labelled mock (demo mode): grouping, trends, alerts, `[MOCK]` action proposals, approval workflow | real AI action proposals (*Suggest action with AI* in real mode) |
-| human corrections, blind labelling, REST API, tests, benchmark | real-scope trend alerts (need ≥ 100 real analyses per week) and AI quality metrics |
+| import the real data; inspect the 13 genuine historical AI results, their evidence and the 9 issues | analysing any further conversation with GPT (UI *Analyse*, AI jobs) |
+| manual action proposals and the full approval → assignment → completion workflow, issue status, human corrections | AI action suggestions (*Suggest an action with AI*) |
+| blind labelling, REST API, tests, benchmark | real trend alerts (need ≥ 100 analysed conversations per week) and AI quality metrics |
 
-The REST API offers the same steps, e.g. `POST /api/alerts/detect/ {"scope": "demo"}`;
-`manage.py detect_trends` evaluates the **real** scope only.
-
-## Optional: synthetic offline fixture
-
-`data/sample/synthetic_demo_messages.csv` is a small **invented** dataset (not real customers) in the same
-format, for quick offline tests or demos: 440 conversations over 4 weeks (2–29 Oct 2017) plus 220 brand
-replies, designed so that one `surge` alert (`billing_subscription.unexpected_charge`, 15 vs. baseline 3)
-and one `emerging` alert (`playback_performance.service_outage`) appear. Use it in a separate, empty
-database (import it with `import_messages`, then `run_analysis --limit 500` and detect in the demo scope).
-
-A live HTTP smoke test exercises login, permissions, pages and the action workflow against a running
-server. It writes records (an action, an alert review) and needs at least one open alert, so run it on a
-review database after step 3 of the real-data walkthrough (or with the fixture):
-`.venv\Scripts\python scripts\smoke_test.py --base http://127.0.0.1:8000 --password <demo password>`.
+The REST API offers the same operations (see [REST API](#rest-api)); `manage.py detect_trends` evaluates
+the real data scope.
 
 ## OpenAI integration
 
@@ -245,6 +241,25 @@ and all fixtures are synthetic (one test additionally checks that the shipped pu
 Performance (all writes are rolled back; output JSON is written to `docs/results/`, which is git-ignored):
 `.venv\Scripts\python manage.py benchmark --subset data\spotifycares_public\spotifycares_subset.csv`
 
+## Developer & testing: offline mock mode
+
+For automated tests and offline development only — **not** part of the instructor walkthrough. The code keeps
+a deterministic keyword **mock** provider (no network, no cost). It runs only with `ECHOVANCE_AI_MODE=demo`
+and `LLM_PROVIDER=mock`; every mock result is labelled `MOCK`, stored in a separate **demo data scope**
+(*Mock demo data* switch on the dashboard, issues and alerts) and never mixed into real metrics. It is not AI
+analysis. Switch back to `ECHOVANCE_AI_MODE=real` / `LLM_PROVIDER=openai` for real use; mock results stay
+in the demo scope.
+
+* `manage.py run_analysis --limit 5000` (demo mode) runs the whole pipeline over the imported texts with
+  the mock, so grouping, trends (*Run trend detection* with data scope *Mock demo analyses*) and `[MOCK]` action
+  proposals can be exercised offline. On the real subset this yields 20 demo-scope `surge` alerts.
+* `data/sample/synthetic_demo_messages.csv` is a small **invented** fixture (not real customers): 440
+  conversations over 4 weeks plus 220 brand replies, designed to produce one `surge` and one `emerging`
+  alert in the demo scope. Use it in a separate, empty database.
+* `scripts/smoke_test.py --base http://127.0.0.1:8000 --password <demo password>` exercises login,
+  permissions, pages and the action workflow against a running server. It writes records and needs at least
+  one open alert, so run it on a separate test database (e.g. after the mock run above).
+
 ## Evaluation
 
 `manage.py evaluate_ai` compares **real** LLM predictions (never the mock) with independent human labels
@@ -306,7 +321,7 @@ validation errors return field-keyed messages. Browsable at `/api/` after loggin
 | `POST /api/jobs/{id}/pause/` · `cancel/` | run_pipeline | |
 | `GET /api/grouping-suggestions/` · `POST …/{id}/accept/` · `…/reject/` `{note}` | run_pipeline (decide) | hybrid grouping review |
 
-Example: `curl -u manager:<password> "http://127.0.0.1:8000/api/dashboard/summary/?scope=demo"`
+Example: `curl -u manager:<password> "http://127.0.0.1:8000/api/dashboard/summary/"`
 
 ## Project structure
 
